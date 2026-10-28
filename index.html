@@ -891,9 +891,84 @@
     }
   };
 
+  /* ---------- Sonido propio por leyenda (opcional) -----------------------
+     Si existe un archivo en sound/<id> (mp3, ogg, m4a o wav) se reproduce
+     ESE sonido; si no, se usa el ambiente sintetizado de AMBIENCE.
+     Mismo sondeo HEAD + caché que las imágenes.                        */
+  const AUDIO_EXTS  = ["mp3", "ogg", "m4a", "wav"];
+  const AUDIO_VOLUME = .8;                    // volumen de los archivos propios
+  const audioCache  = new Map();
+  let   ambienceAudio = null;                 // archivo que está sonando ahora
+
+  function stopAmbience(){
+    if(!ambienceAudio) return;
+    try{ ambienceAudio.pause(); ambienceAudio.currentTime = 0; }catch(e){ /* silencio */ }
+    ambienceAudio = null;
+  }
+
+  async function audioURLs(legend){
+    if(audioCache.has(legend.id)) return audioCache.get(legend.id);
+
+    const bases = [];
+    const push = b => { if(b && bases.indexOf(b) === -1) bases.push(b); };
+    if(legend.sound) push(String(legend.sound).replace(/\.[^.\/]+$/, ""));
+    push(legend.id);
+    push(legend.name.toLowerCase());
+
+    const urls = [];
+    bases.forEach(b => AUDIO_EXTS.forEach(e => urls.push("sound/" + b + "." + e)));
+
+    const probe = (async () => {
+      if(typeof fetch !== "function") return urls;   // sin fetch → cadena clásica
+      for(const u of urls){
+        try{
+          const r = await fetch(u, { method:"HEAD" });
+          if(r.ok) return [u];
+        }catch(e){ return urls; }                    // file:// → cadena clásica
+      }
+      return [];                                     // no hay archivo propio
+    })();
+
+    audioCache.set(legend.id, probe);
+    return probe;
+  }
+
+  // Devuelve true si empezó a sonar un archivo propio
+  function playCustomAudio(legend){
+    return Promise.resolve(audioURLs(legend)).then(urls => {
+      if(!urls || !urls.length || !state.soundOn) return false;
+      return new Promise(resolve => {
+        let i = 0, settled = false;
+        const give = ok => { if(!settled){ settled = true; resolve(ok); } };
+        const next = () => {
+          if(i >= urls.length || settled) return give(false);
+          const a = new Audio();
+          a.preload = "auto";
+          a.volume = AUDIO_VOLUME;
+          a.addEventListener("error", next, { once:true });
+          a.addEventListener("canplay", () => {
+            if(settled){ return; }               // ya se resolvió (ej.: otro archivo sonando)
+            ambienceAudio = a;
+            a.onended = () => { if(ambienceAudio === a) ambienceAudio = null; };
+            const p = a.play();
+            if(p && typeof p.then === "function") p.then(() => give(true)).catch(() => give(false));
+            else give(true);
+          }, { once:true });
+          a.src = urls[i++];
+          a.load();
+        };
+        next();
+      });
+    }).catch(() => false);
+  }
+
+  // Sonido ambiental: archivo propio si existe, si no el sintetizado
   function playAmbient(legend){
-    const fn = AMBIENCE[legend.id];
-    if(typeof fn === "function"){ try{ fn(); }catch(e){ /* silencio */ } }
+    playCustomAudio(legend).then(ok => {
+      if(ok || !state.soundOn) return;
+      const fn = AMBIENCE[legend.id];
+      if(typeof fn === "function"){ try{ fn(); }catch(e){ /* silencio */ } }
+    });
   }
 
   /* ============================================================
@@ -928,6 +1003,7 @@
   // ③ recién entonces entra el sonido ambiental característica de esa bestia
   function playMatchSequence(legend){
     if(!state.soundOn) return;
+    stopAmbience();               // un acierto nuevo corta el sonido anterior
     sfx.spark();
     speakThen("¡" + legend.name + "!", function(){
       if(!state.soundOn) return;
@@ -1096,7 +1172,10 @@
 
     [$("#soundToggle"), $("#soundToggle2")].forEach(btn => btn.addEventListener("click", () => {
       state.soundOn = !state.soundOn;
-      if(!state.soundOn && "speechSynthesis" in window) speechSynthesis.cancel();
+      if(!state.soundOn){
+        if("speechSynthesis" in window) speechSynthesis.cancel();
+        stopAmbience();               // silencia también el archivo de sonido
+      }
       $("#soundToggle").textContent  = state.soundOn ? "🔊 Sonido: activado" : "🔇 Sonido: silenciado";
       $("#soundToggle").setAttribute("aria-pressed", String(state.soundOn));
       $("#soundToggle2").textContent = state.soundOn ? "🔊 Sonido" : "🔇 Sonido";
@@ -1118,6 +1197,7 @@
   function goMenu(){
     stopTimer();
     if("speechSynthesis" in window) speechSynthesis.cancel();
+    stopAmbience();
     $("#overlay").classList.remove("show");
     $("#gameScreen").classList.remove("active");
     $("#menuScreen").classList.add("active");
@@ -1128,6 +1208,7 @@
      ============================================================ */
   function startGame(){
     stopTimer();
+    stopAmbience();
     state.turn = 0;
     state.flipped = [];
     state.matchedPairs = 0;
@@ -1292,6 +1373,7 @@
      ============================================================ */
   function endGame(){
     stopTimer();
+    stopAmbience();               // el sonido de la última bestia no pisa la fanfarria
     sfx.win();
 
     const title = $("#winTitle");

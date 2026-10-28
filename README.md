@@ -47,7 +47,9 @@ Memotest (juego de memoria) con temática de **mitos y leyendas del noroeste arg
   | El Ahogado | corriente fría, burbujas y respiración bajo el agua |
   | La Telesita | destello celeste, luz que titila |
 
-  Todo es **audio sintetizado (sin URLs externas)**: no depende de la red, no hay problemas de licencia y el juego sigue siendo un único HTML.
+  El juego prefiere siempre el **archivo propio** (`sound/<leyenda>.mp3`, si existe) y usa el
+  sintetizado como respaldo: es **audio 100 % local (sin URLs externas)**, no depende de la red,
+  no hay problemas de licencia y sigue siendo un único HTML con sus carpetas `img/` y `sound/`.
 - Resto de los efectos: volteo, fallo, victoria y clic, también con Web Audio API.
 - Botón **🔊 Sonido** para silenciar voz + ambientes en cualquier momento.
 - Indicador visual de turno, marcador por jugador, cronómetro y estadísticas finales.
@@ -74,6 +76,30 @@ Cada leyenda tiene su propia ilustración en la carpeta **`img/`**. Podés reemp
 - Podés forzar una ruta exacta agregando el campo `img:"ruta/archivo.jpg"` al personaje dentro del array `LEGENDS`.
 - Si **no existe** la imagen, se muestra un respaldo (SVG con la runa y el nombre, o el emoji) para que ninguna carta quede vacía.
 - Las imágenes con **fondo blanco o transparente** se ven mejor sobre la carta oscura.
+
+## 🔊 Sonidos propios de las bestias (opcional)
+
+Además de los ambientes sintetizados, cada leyenda puede tener **su propio archivo de sonido**
+en la carpeta **`sound/`**. Si existe, se reproduce **ese** archivo (después de que la voz nombra
+a la leyenda); si no, se usa el ambiente sintetizado de la tabla anterior. Mismo esquema que las
+imágenes: sondeo automático y respaldo sin tocar el código.
+
+| Leyenda | Nombre de archivo |
+| --- | --- |
+| La Llorona | `sound/llorona.mp3` (o `.ogg` / `.m4a` / `.wav`) |
+| El Ucumar | `sound/ucumar.mp3` |
+| El Pombero | `sound/pombero.mp3` |
+| El Duende | `sound/duende.mp3` |
+| La Salamanca | `sound/salamanca.mp3` |
+| El Familiar | `sound/familiar.mp3` |
+| El Ahogado | `sound/ahogado.mp3` |
+| La Telesita | `sound/telesita.mp3` |
+
+- Extensiones buscadas, en orden: `.mp3` → `.ogg` → `.m4a` → `.wav`.
+- También se aceptan otros nombres: `sound/la llorona.mp3`, `sound/el duende.mp3`, etc.
+- Podés forzar una ruta exacta con el campo `sound:"ruta/archivo.mp3"` en el array `LEGENDS`.
+- Duración ideal: **2 a 4 segundos** (sonido ambiental corto, no música larga).
+- El botón 🔊 Sonido corta el archivo al instante, igual que la voz.
 
 ## 🚀 Publicar en GitHub Pages
 
