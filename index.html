@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memoria Ancestral · Leyendas de Jujuy</title>
+<style>
+  /* ============================================================
+     MEMORIA ANCESTRAL · Memotest de Leyendas de Jujuy
+     Modo oscuro · Naranja fuego / Morado místico / Oro rústico
+     ============================================================ */
+  :root{
+    --bg:            #0a0608;
+    --bg-2:          #150c14;
+    --panel:         #17101a;
+    --panel-2:       #1f1524;
+    --ember:         #ff7a18;
+    --pumpkin:       #ffa41f;
+    --violet:        #8b46d6;
+    --violet-deep:   #4c1d95;
+    --gold:          #d9a441;
+    --earth:         #7a4a1e;
+    --parchment:     #f2e3c6;
+    --blood:         #a31621;
+    --muted:         #9b8aa5;
+    --ok:            #4ade80;
+    --radius:        14px;
+    --serif: "Palatino Linotype","Book Antiqua",Palatino,Georgia,"Times New Roman",serif;
+    --sans: "Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html,body{ height:100%; }
+
+  body{
+    background:
+      radial-gradient(1200px 700px at 78% -12%, rgba(139,70,214,.28), transparent 60%),
+      radial-gradient(900px 600px at 8% 105%, rgba(255,122,24,.18), transparent 62%),
+      linear-gradient(180deg, #0a0608 0%, #140b13 45%, #0b0709 100%);
+    color:var(--parchment);
+    font-family:var(--sans);
+    min-height:100%;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---------- Atmósfera: luna, niebla, brasas ---------- */
+  .sky{ position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+
+  .moon{
+    position:absolute; top:-70px; right:-60px; width:340px; height:340px; border-radius:50%;
+    background:radial-gradient(circle at 34% 34%, #fff7e0, #e8d6a6 45%, #b9a077 72%, #8c7550 100%);
+    box-shadow:0 0 90px 30px rgba(255,215,150,.16), inset -22px -18px 60px rgba(90,60,20,.35);
+    opacity:.45; filter:saturate(.85);
+  }
+  .moon::after{
+    content:""; position:absolute; inset:0; border-radius:50%;
+    background:
+      radial-gradient(circle at 62% 28%, rgba(120,95,60,.35) 0 9%, transparent 10%),
+      radial-gradient(circle at 40% 62%, rgba(120,95,60,.30) 0 12%, transparent 13%),
+      radial-gradient(circle at 72% 66%, rgba(120,95,60,.25) 0 7%, transparent 8%);
+  }
+
+  .fog{
+    position:absolute; width:70vw; height:70vw; max-width:900px; max-height:900px; border-radius:50%;
+    filter:blur(70px); opacity:.30;
+  }
+  .fog.a{ left:-18vw; bottom:-24vw; background:radial-gradient(circle,rgba(139,70,214,.55),transparent 65%); animation:drift 46s ease-in-out infinite alternate; }
+  .fog.b{ right:-20vw; bottom:-26vw; background:radial-gradient(circle,rgba(255,122,24,.45),transparent 65%); animation:drift 58s ease-in-out infinite alternate-reverse; }
+
+  @keyframes drift{ from{ transform:translate3d(0,0,0) scale(1);} to{ transform:translate3d(9vw,-6vh,0) scale(1.18);} }
+
+  .ember{
+    position:absolute; bottom:-12px; width:5px; height:5px; border-radius:50%;
+    background:radial-gradient(circle,#ffd9a0,var(--ember) 60%,rgba(255,122,24,0) 75%);
+    box-shadow:0 0 8px 2px rgba(255,140,30,.55);
+    opacity:0; animation:rise linear infinite;
+  }
+  .ember.v{ background:radial-gradient(circle,#e9d6ff,var(--violet) 60%,rgba(139,70,214,0) 75%); box-shadow:0 0 8px 2px rgba(160,90,240,.5); }
+  @keyframes rise{
+    0%{ transform:translateY(0) translateX(0) scale(.7); opacity:0; }
+    10%{ opacity:.85; }
+    50%{ transform:translateY(-52vh) translateX(28px) scale(1); opacity:.7; }
+    100%{ transform:translateY(-105vh) translateX(-24px) scale(.5); opacity:0; }
+  }
+
+  .vignette{
+    position:fixed; inset:0; pointer-events:none; z-index:60;
+    background:radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(0,0,0,.75) 100%);
+  }
+
+  /* ---------- Estructura ---------- */
+  .wrap{ position:relative; z-index:2; min-height:100vh; display:flex; flex-direction:column; padding:24px clamp(14px,4vw,40px) 40px; }
+
+  .screen{ display:none; flex:1; flex-direction:column; }
+  .screen.active{ display:flex; animation:fade .5s ease both; }
+  @keyframes fade{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:none;} }
+
+  /* ---------- Cabecera / Título ---------- */
+  .brand{ text-align:center; margin:14px 0 6px; }
+  .kicker{
+    font-family:var(--sans); font-size:.72rem; letter-spacing:.42em; text-transform:uppercase;
+    color:var(--gold); opacity:.85;
+  }
+  h1.title{
+    font-family:var(--serif);
+    font-size:clamp(2.3rem,7vw,4.6rem);
+    line-height:1.02;
+    margin:.18em 0 .1em;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    background:linear-gradient(180deg,#fff4dd 0%, #ffc978 42%, #ff7a18 72%, #a8420a 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 42px rgba(255,122,24,.35);
+    filter:drop-shadow(0 4px 18px rgba(255,90,0,.28));
+    animation:flicker 6.5s infinite;
+  }
+  @keyframes flicker{
+    0%,100%{ opacity:1; }
+    47%{ opacity:1; }
+    48%{ opacity:.82; }
+    49%{ opacity:1; }
+    72%{ opacity:.9; }
+    73%{ opacity:1; }
+  }
+  .subtitle{
+    font-family:var(--serif); font-style:italic; color:#cdb6df;
+    font-size:clamp(.95rem,2.4vw,1.15rem); letter-spacing:.06em;
+  }
+  .runes-line{
+    display:flex; justify-content:center; gap:.85em; margin-top:12px;
+    color:var(--gold); font-size:1.05rem; letter-spacing:.5em; opacity:.75;
+  }
+  .runes-line span{ animation:pulseRune 3.6s ease-in-out infinite; }
+  .runes-line span:nth-child(2){ animation-delay:.4s }
+  .runes-line span:nth-child(3){ animation-delay:.8s }
+  .runes-line span:nth-child(4){ animation-delay:1.2s }
+  .runes-line span:nth-child(5){ animation-delay:1.6s }
+  @keyframes pulseRune{ 0%,100%{ opacity:.35; text-shadow:none;} 50%{ opacity:1; text-shadow:0 0 14px rgba(217,164,65,.9);} }
+
+  /* ---------- Menú ---------- */
+  .menu-grid{
+    display:grid; grid-template-columns:1.15fr .85fr; gap:22px;
+    max-width:1040px; width:100%; margin:26px auto 0; align-items:start;
+  }
+  @media (max-width:880px){ .menu-grid{ grid-template-columns:1fr; } }
+
+  .panel{
+    background:linear-gradient(160deg, rgba(31,21,36,.92), rgba(18,11,20,.94));
+    border:1px solid rgba(217,164,65,.32);
+    border-radius:var(--radius);
+    padding:22px clamp(16px,3vw,26px) 24px;
+    box-shadow:0 24px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+    position:relative;
+  }
+  .panel::before{
+    content:""; position:absolute; inset:7px; border:1px dashed rgba(139,70,214,.30);
+    border-radius:9px; pointer-events:none;
+  }
+  .panel h2{
+    font-family:var(--serif); font-size:1.22rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--pumpkin); margin-bottom:16px; display:flex; align-items:center; gap:10px;
+  }
+  .panel h2::after{ content:""; flex:1; height:1px; background:linear-gradient(90deg,rgba(255,164,31,.55),transparent); }
+
+  .mode{ display:grid; gap:12px; }
+  .mode-option{
+    display:flex; gap:14px; align-items:flex-start; cursor:pointer;
+    background:rgba(10,6,10,.6); border:1px solid rgba(217,164,65,.25);
+    border-radius:12px; padding:14px 16px; transition:.25s ease; position:relative; overflow:hidden;
+  }
+  .mode-option:hover{ border-color:rgba(255,164,31,.6); transform:translateY(-2px); }
+  .mode-option input{ position:absolute; opacity:0; pointer-events:none; }
+  .mode-option .dot{
+    width:20px; height:20px; border-radius:50%; border:2px solid var(--gold); margin-top:3px; flex:none;
+    display:grid; place-items:center; transition:.2s;
+  }
+  .mode-option .dot::after{ content:""; width:10px; height:10px; border-radius:50%; background:var(--ember); transform:scale(0); transition:.2s; box-shadow:0 0 12px var(--ember); }
+  .mode-option input:checked ~ .dot::after{ transform:scale(1); }
+  .mode-option:has(input:checked){
+    border-color:var(--ember);
+    background:linear-gradient(120deg, rgba(255,122,24,.16), rgba(139,70,214,.14));
+    box-shadow:0 0 0 1px rgba(255,122,24,.35), 0 12px 30px rgba(0,0,0,.45);
+  }
+  .mode-option .m-title{ display:block; font-family:var(--serif); font-size:1.05rem; color:#fff2dc; letter-spacing:.05em; }
+  .mode-option .m-desc{ display:block; font-size:.83rem; color:var(--muted); margin-top:5px; line-height:1.45; }
+
+  .names{ display:none; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+  .names.show{ display:grid; animation:fade .35s ease both; }
+  @media (max-width:520px){ .names{ grid-template-columns:1fr; } }
+  .field label{ display:block; font-size:.7rem; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+  .field input{
+    width:100%; background:rgba(6,4,7,.85); color:var(--parchment);
+    border:1px solid rgba(217,164,65,.4); border-radius:10px; padding:11px 13px;
+    font-family:var(--serif); font-size:1rem; letter-spacing:.03em; outline:none; transition:.2s;
+  }
+  .field input:focus{ border-color:var(--ember); box-shadow:0 0 0 3px rgba(255,122,24,.22); }
+  .field.p2 input:focus{ border-color:var(--violet); box-shadow:0 0 0 3px rgba(139,70,214,.25); }
+
+  .btn{
+    font-family:var(--serif); letter-spacing:.12em; text-transform:uppercase; font-size:.95rem;
+    border:none; border-radius:999px; padding:14px 30px; cursor:pointer; color:#1b0d02;
+    background:linear-gradient(180deg,#ffd08a,#ff9a1f 45%,#e4620b);
+    box-shadow:0 10px 26px rgba(255,110,10,.35), inset 0 1px 0 rgba(255,255,255,.6);
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s;
+  }
+  .btn:hover{ transform:translateY(-3px); box-shadow:0 16px 34px rgba(255,110,10,.45), inset 0 1px 0 rgba(255,255,255,.7); filter:brightness(1.05); }
+  .btn:active{ transform:translateY(0) scale(.98); }
+  .btn.ghost{
+    background:transparent; color:var(--parchment); border:1px solid rgba(217,164,65,.55); box-shadow:none;
+  }
+  .btn.ghost:hover{ background:rgba(217,164,65,.12); box-shadow:0 0 22px rgba(217,164,65,.2); }
+  .btn.violet{
+    background:linear-gradient(180deg,#d5a8ff,#9b53e0 45%,#6d28d9); color:#15061f;
+    box-shadow:0 10px 26px rgba(139,70,214,.4), inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .actions{ display:flex; gap:14px; margin-top:22px; flex-wrap:wrap; }
+
+  /* Bestiario del menú */
+  .bestiary{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .beast{
+    display:flex; align-items:center; gap:10px; padding:10px 11px; border-radius:10px;
+    background:rgba(8,5,9,.7); border:1px solid rgba(139,70,214,.3);
+    font-family:var(--serif); font-size:.92rem; color:#e8dcf5;
+    transition:.25s;
+  }
+  .beast:hover{ border-color:var(--pumpkin); transform:translateY(-3px); box-shadow:0 10px 22px rgba(0,0,0,.5); }
+  .beast .ico{
+    width:34px; height:34px; flex:none; display:grid; place-items:center; font-size:1.15rem;
+    border-radius:8px; background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.18), rgba(0,0,0,.35));
+    border:1px solid rgba(255,255,255,.14);
+  }
+  .beast small{ display:block; color:var(--muted); font-family:var(--sans); font-size:.68rem; letter-spacing:.05em; }
+
+  .rules{ margin-top:16px; font-size:.86rem; color:var(--muted); line-height:1.6; }
+  .rules b{ color:var(--pumpkin); font-weight:600; }
+
+  /* ---------- HUD ---------- */
+  .topbar{ display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+  .mini-title{ font-family:var(--serif); letter-spacing:.2em; text-transform:uppercase; font-size:.95rem; color:var(--gold); }
+
+  .hud{
+    display:flex; gap:14px; align-items:stretch; justify-content:space-between; flex-wrap:wrap;
+    max-width:940px; width:100%; margin:0 auto 16px;
+  }
+  .players{ display:flex; gap:12px; flex-wrap:wrap; }
+  .player{
+    min-width:170px; padding:11px 16px; border-radius:12px;
+    background:rgba(10,6,11,.8); border:1px solid rgba(217,164,65,.28);
+    display:flex; align-items:center; gap:12px; transition:.3s; position:relative;
+  }
+  .player .pname{ font-family:var(--serif); font-size:1rem; color:#efe3cf; }
+  .player .pscore{ font-size:1.4rem; font-weight:700; color:var(--pumpkin); line-height:1; }
+  .player .plabel{ font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+  .player.active{
+    border-color:var(--ember);
+    background:linear-gradient(120deg, rgba(255,122,24,.20), rgba(139,70,214,.16));
+    box-shadow:0 0 0 1px rgba(255,122,24,.5), 0 0 30px rgba(255,122,24,.28);
+    transform:translateY(-2px);
+  }
+  .player.active::after{
+    content:"▲ tu turno"; position:absolute; top:-9px; left:14px; font-size:.58rem; letter-spacing:.18em;
+    background:var(--ember); color:#1b0d02; padding:2px 8px; border-radius:999px; font-weight:700;
+    text-transform:uppercase;
+  }
+  .player.p2.active{ border-color:var(--violet); box-shadow:0 0 0 1px rgba(139,70,214,.6), 0 0 30px rgba(139,70,214,.35); background:linear-gradient(120deg, rgba(139,70,214,.26), rgba(255,122,24,.10)); }
+  .player.p2.active::after{ background:var(--violet); color:#fff; }
+
+  .stats{
+    display:flex; gap:18px; align-items:center; padding:11px 18px; border-radius:12px;
+    background:rgba(10,6,11,.8); border:1px solid rgba(139,70,214,.35);
+  }
+  .stat{ text-align:center; }
+  .stat .v{ font-family:var(--serif); font-size:1.28rem; color:#fff0d8; line-height:1.1; }
+  .stat .k{ font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+
+  /* ---------- Tablero ---------- */
+  .board-wrap{ display:flex; justify-content:center; }
+  .board{
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:clamp(8px,1.5vw,16px);
+    width:min(660px,100%);
+    padding:clamp(10px,2vw,18px);
+    border-radius:20px;
+    background:
+      linear-gradient(180deg, rgba(24,15,26,.85), rgba(12,7,13,.9));
+    border:1px solid rgba(217,164,65,.35);
+    box-shadow:0 30px 70px rgba(0,0,0,.65), inset 0 0 60px rgba(139,70,214,.12);
+    position:relative;
+  }
+  .board::before{
+    content:"ᛟ ᚨ ᚱ ᚷ ᚷ ᚨ ᛉ ᛊ";
+    position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    background:#120b14; padding:2px 16px; border:1px solid rgba(217,164,65,.4);
+    border-radius:999px; font-size:.78rem; letter-spacing:.4em; color:var(--gold);
+  }
+
+  .card{
+    aspect-ratio:3/4; border:none; background:none; padding:0; cursor:pointer;
+    perspective:900px; -webkit-tap-highlight-color:transparent; font:inherit;
+    position:relative;
+  }
+  .card:focus-visible{ outline:3px solid var(--pumpkin); outline-offset:4px; border-radius:16px; }
+  .card-inner{
+    position:relative; width:100%; height:100%; display:block;
+    transform-style:preserve-3d; transition:transform .55s cubic-bezier(.4,.1,.2,1.05);
+  }
+  .card.flipped .card-inner, .card.matched .card-inner{ transform:rotateY(180deg); }
+
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    border-radius:14px; overflow:hidden; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:6px; padding:8px 6px;
+  }
+
+  /* Reverso: madera antigua + runas andinas */
+  .back{
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 2px, transparent 2px 9px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 3px, transparent 3px 14px),
+      linear-gradient(145deg,#3b2412 0%, #2a170c 45%, #4a2d14 100%);
+    border:2px solid rgba(217,164,65,.55);
+    box-shadow:inset 0 0 22px rgba(0,0,0,.75), inset 0 0 0 4px rgba(0,0,0,.35);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .card:not(.flipped):not(.matched):hover .back{
+    box-shadow:inset 0 0 22px rgba(0,0,0,.75), 0 0 26px rgba(255,122,24,.45);
+    border-color:var(--pumpkin);
+  }
+  .card:not(.flipped):not(.matched):hover .card-inner{ transform:translateY(-5px) scale(1.03); }
+  .card:not(.flipped):not(.matched):active .card-inner{ transform:scale(.97); }
+
+  .back .glyph{
+    font-size:clamp(1.5rem,5vw,2.3rem); color:var(--gold);
+    text-shadow:0 0 16px rgba(217,164,65,.85), 0 0 40px rgba(255,122,24,.4);
+    animation:glyphGlow 3.4s ease-in-out infinite;
+    line-height:1;
+  }
+  @keyframes glyphGlow{ 0%,100%{ opacity:.75; } 50%{ opacity:1; text-shadow:0 0 22px rgba(255,164,31,.95),0 0 46px rgba(139,70,214,.7);} }
+  .back .eye{ font-size:.95rem; opacity:.6; }
+  .back .corner{ position:absolute; width:14px; height:14px; border:2px solid rgba(255,164,31,.7); }
+  .back .c1{ top:6px; left:6px; border-right:0; border-bottom:0; border-radius:6px 0 0 0; }
+  .back .c2{ top:6px; right:6px; border-left:0; border-bottom:0; border-radius:0 6px 0 0; }
+  .back .c3{ bottom:6px; left:6px; border-right:0; border-top:0; border-radius:0 0 0 6px; }
+  .back .c4{ bottom:6px; right:6px; border-left:0; border-top:0; border-radius:0 0 6px 0; }
+
+  /* Frente: la leyenda */
+  .front{
+    transform:rotateY(180deg);
+    background:radial-gradient(circle at 50% 22%, var(--glow, rgba(255,164,31,.35)), rgba(10,6,10,.96) 72%);
+    border:2px solid var(--accent,var(--gold));
+    box-shadow:inset 0 0 30px rgba(0,0,0,.7);
+    text-align:center;
+  }
+  .front .art{
+    font-size:clamp(1.7rem,7vw,2.6rem); line-height:1;
+    filter:drop-shadow(0 4px 10px rgba(0,0,0,.7));
+    animation:bob 3.2s ease-in-out infinite;
+  }
+  .front .art svg{ width:2.4rem; height:2.4rem; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-5px);} }
+  .front .name{
+    font-family:var(--serif); font-size:clamp(.72rem,2.7vw,.92rem);
+    letter-spacing:.06em; color:#fff6e6; text-shadow:0 2px 8px rgba(0,0,0,.9);
+    line-height:1.15;
+  }
+  .front .tag{
+    font-size:.55rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--accent,var(--gold)); opacity:.9;
+  }
+
+  .card.matched .front{
+    animation:matchPop .6s ease both, matchGlow 2.4s ease-in-out .6s infinite alternate;
+  }
+  @keyframes matchPop{ 0%{ transform:rotateY(180deg) scale(1);} 45%{ transform:rotateY(180deg) scale(1.12);} 100%{ transform:rotateY(180deg) scale(1);} }
+  @keyframes matchGlow{ from{ box-shadow:inset 0 0 30px rgba(0,0,0,.7), 0 0 6px rgba(255,164,31,.35);} to{ box-shadow:inset 0 0 24px rgba(0,0,0,.5), 0 0 30px var(--accent,var(--gold));} }
+  .card.matched{ cursor:default; }
+  .card.matched::before{
+    content:"✓"; position:absolute; z-index:5; top:6px; right:8px;
+    width:22px; height:22px; border-radius:50%; display:grid; place-items:center;
+    background:rgba(0,0,0,.75); border:1px solid var(--ok); color:var(--ok);
+    font-size:.75rem; font-weight:700;
+  }
+  .card.shake .card-inner{ animation:shake .4s ease; }
+  @keyframes shake{ 0%,100%{ transform:rotateY(180deg) translateX(0);} 25%{ transform:rotateY(180deg) translateX(-7px);} 75%{ transform:rotateY(180deg) translateX(7px);} }
+
+  .status{
+    text-align:center; margin-top:16px; min-height:26px;
+    font-family:var(--serif); font-size:1.02rem; letter-spacing:.05em; color:#e7d6f5;
+  }
+  .status.good{ color:var(--ok); text-shadow:0 0 16px rgba(74,222,128,.55); }
+  .status.bad{ color:#ff9d9d; }
+  .status.turn{ color:var(--pumpkin); }
+
+  .footnote{ text-align:center; margin-top:18px; font-size:.74rem; color:#6f6179; letter-spacing:.14em; text-transform:uppercase; }
+
+  /* ---------- Victoria ---------- */
+  .overlay{
+    position:fixed; inset:0; z-index:80; display:none; place-items:center; padding:20px;
+    background:radial-gradient(circle at 50% 40%, rgba(76,29,149,.55), rgba(5,3,6,.93) 70%);
+    backdrop-filter:blur(6px);
+  }
+  .overlay.show{ display:grid; animation:fade .45s ease both; }
+  .victory{
+    width:min(560px,100%); text-align:center; padding:34px 26px 30px; border-radius:20px;
+    background:linear-gradient(165deg, rgba(38,24,44,.97), rgba(14,8,16,.98));
+    border:1px solid rgba(255,164,31,.55);
+    box-shadow:0 40px 90px rgba(0,0,0,.75), 0 0 70px rgba(255,122,24,.22);
+    position:relative; overflow:hidden;
+  }
+  .victory::before{
+    content:""; position:absolute; inset:9px; border:1px dashed rgba(139,70,214,.45); border-radius:14px; pointer-events:none;
+  }
+  .victory .trophy{ font-size:3.4rem; animation:bob 2.4s ease-in-out infinite; }
+  .victory h2{
+    font-family:var(--serif); font-size:clamp(1.7rem,6vw,2.5rem); text-transform:uppercase; letter-spacing:.06em;
+    margin:8px 0 4px;
+    background:linear-gradient(180deg,#fff3d8,#ffb64d 55%,#ff7a18);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 22px rgba(255,140,30,.4));
+  }
+  .victory .who{ font-family:var(--serif); font-size:1.25rem; color:#fff; margin-bottom:6px; }
+  .victory .who b{ color:var(--pumpkin); font-size:1.5rem; }
+  .victory p.msg{ color:var(--muted); font-size:.92rem; line-height:1.6; margin-bottom:16px; }
+  .final-stats{ display:flex; justify-content:center; gap:26px; flex-wrap:wrap; margin-bottom:22px; }
+  .final-stats .fs{ min-width:96px; padding:10px 14px; border-radius:12px; background:rgba(8,5,9,.75); border:1px solid rgba(217,164,65,.35); }
+  .final-stats .fs .v{ font-family:var(--serif); font-size:1.5rem; color:#fff0d8; }
+  .final-stats .fs .k{ font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+  .victory .actions{ justify-content:center; }
+
+  .confetti{ position:absolute; top:-14px; width:9px; height:9px; border-radius:2px; opacity:.95; animation:fall linear forwards; z-index:2; }
+  @keyframes fall{ to{ transform:translateY(560px) rotate(720deg); opacity:0; } }
+
+  @media (max-width:520px){
+    .stats{ width:100%; justify-content:space-around; }
+    .player{ min-width:132px; flex:1; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.05ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" aria-hidden="true">
+  <div class="moon"></div>
+  <div class="fog a"></div>
+  <div class="fog b"></div>
+  <div id="embers"></div>
+</div>
+<div class="vignette" aria-hidden="true"></div>
+
+<div class="wrap">
+
+  <!-- ============ MENÚ PRINCIPAL ============ -->
+  <section id="menuScreen" class="screen active">
+    <header class="brand">
+      <div class="kicker">Halloween en la Quebrada de Humahuaca</div>
+      <h1 class="title">Memoria Ancestral</h1>
+      <div class="subtitle">Leyendas del Monte · Memotest Folclórico de Jujuy</div>
+      <div class="runes-line" aria-hidden="true"><span>ᛟ</span><span>ᚠ</span><span>ᛉ</span><span>ᛊ</span><span>ᚨ</span></div>
+    </header>
+
+    <div class="menu-grid">
+      <!-- Configuración -->
+      <div class="panel">
+        <h2>Elige tu camino</h2>
+
+        <div class="mode">
+          <label class="mode-option">
+            <input type="radio" name="mode" value="1p" checked>
+            <span class="dot"></span>
+            <span>
+              <span class="m-title">🌙 Un Jugador</span>
+              <span class="m-desc">Modo solitario: cuenta tus intentos y domina el cronómetro mientras despiertas a las 8 leyendas.</span>
+            </span>
+          </label>
+
+          <label class="mode-option">
+            <input type="radio" name="mode" value="2p">
+            <span class="dot"></span>
+            <span>
+              <span class="m-title">🔥 Dos Jugadores (Local / Turnos)</span>
+              <span class="m-desc">Se turnan sus revelaciones: cada pareja acertada suma un punto y fallar pasa el turno al rival.</span>
+            </span>
+          </label>
+        </div>
+
+        <div class="names" id="namesBox">
+          <div class="field p1">
+            <label for="p1Name">Jugador 1 · Naranja</label>
+            <input id="p1Name" type="text" maxlength="16" value="Guardián" autocomplete="off">
+          </div>
+          <div class="field p2">
+            <label for="p2Name">Jugador 2 · Violeta</label>
+            <input id="p2Name" type="text" maxlength="16" value="Chamanita" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="startBtn">🕯️ Iniciar la partida</button>
+          <button class="btn ghost" id="soundToggle" aria-pressed="true">🔊 Voz: activada</button>
+        </div>
+
+        <p class="rules">
+          <b>Cómo se juega:</b> volteá dos cartas; si muestran la misma leyenda, el par queda revelado
+          y <b>una voz ancestral pronunciará su nombre</b>. Tablero de <b>4 × 4</b> = 8 parejas.
+          En modo de dos jugadores, fallar pasa el turno al rival.
+        </p>
+      </div>
+
+      <!-- Bestiario -->
+      <div class="panel">
+        <h2>Bestiario</h2>
+        <div class="bestiary" id="bestiary"></div>
+        <p class="rules">
+          Ocho criaturas de la tierra jujeña aguardan tras las cartas. Descubrí todas antes de que
+          el incienso se consuma… <b>¡No dejes que la llorona te atrape!</b>
+        </p>
+      </div>
+    </div>
+
+    <div class="footnote">Mitos y leyendas del noroeste argentino · Hecho con fuego, runas y HTML</div>
+  </section>
+
+  <!-- ============ PANTALLA DE JUEGO ============ -->
+  <section id="gameScreen" class="screen">
+    <div class="topbar">
+      <button class="btn ghost" id="backBtn" style="padding:9px 18px; font-size:.78rem;">← Menú</button>
+      <div class="mini-title">Memoria Ancestral · Tablero 4 × 4</div>
+      <button class="btn ghost" id="soundToggle2" style="padding:9px 18px; font-size:.78rem;" aria-pressed="true">🔊 Voz</button>
+    </div>
+
+    <div class="hud">
+      <div class="players" id="playersPanel"></div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="statPairs">0/8</div><div class="k">Parejas</div></div>
+        <div class="stat"><div class="v" id="statAttempts">0</div><div class="k">Intentos</div></div>
+        <div class="stat"><div class="v" id="statTime">00:00</div><div class="k">Tiempo</div></div>
+      </div>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board" id="board" aria-label="Tablero de memoria con 16 cartas"></div>
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite">Elegí dos cartas para despertar una leyenda…</div>
+    <div class="footnote">Haz clic en dos cartas · las parejas acertadas suenan en voz alta</div>
+  </section>
+</div>
+
+<!-- ============ VICTORIA ============ -->
+<div class="overlay" id="overlay">
+  <div class="victory">
+    <div class="trophy">🎃</div>
+    <h2 id="winTitle">¡Ritual completado!</h2>
+    <div class="who" id="winWho"></div>
+    <p class="msg" id="winMsg"></p>
+    <div class="final-stats" id="finalStats"></div>
+    <div class="actions">
+      <button class="btn" id="againBtn">🔁 Jugar de nuevo</button>
+      <button class="btn violet" id="menuBtn">🌙 Volver al menú</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ============================================================
+     1. DATOS · Las ocho leyendas del noroeste argentino
+     ============================================================ */
+  const GHOST_SVG =
+    '<svg viewBox="0 0 64 64" aria-hidden="true">' +
+    '<path fill="#dff6ff" d="M32 6c-11 0-19 8.6-19 20v24.5c0 2.4 2.7 3.8 4.6 2.3l4.1-3.2 4.5 3.4c1.4 1.1 3.4 1.1 4.8 0l4.4-3.4 4.4 3.4c1.4 1.1 3.4 1.1 4.8 0l4.5-3.4 4.1 3.2c1.9 1.5 4.6.1 4.6-2.3V26C51 14.6 43 6 32 6z"/>' +
+    '<circle cx="24" cy="27" r="4" fill="#16323d"/><circle cx="40" cy="27" r="4" fill="#16323d"/>' +
+    '<ellipse cx="32" cy="41" rx="6" ry="7.5" fill="#16323d"/>' +
+    '<path d="M14 44c3 6 9 9 18 9s15-3 18-9" fill="none" stroke="#8fe3ff" stroke-width="2" opacity=".7"/>' +
+    '</svg>';
+
+  const LEGENDS = [
+    { id:"llorona",  name:"La Llorona",  art:"ghost",   tag:"Los ríos",    accent:"#4cc9f0", glow:"rgba(76,201,240,.40)",
+      desc:"Vaga por las quebradas llorando por sus hijos perdidos.", rune:"ᚠ" },
+    { id:"ucumar",   name:"El Ucumar",   art:"🙉",      tag:"El monte",    accent:"#c98a4b", glow:"rgba(201,138,75,.40)",
+      desc:"Hombre-mono de la selva que ronda las fincas de Yavi.",   rune:"ᚢ" },
+    { id:"pombero",  name:"El Pombero",  art:"🐦",      tag:"El monte",    accent:"#43aa5a", glow:"rgba(67,170,90,.40)",
+      desc:"Guardián silbador de los animales: si lo escuchás, no los caces.", rune:"ᚦ" },
+    { id:"duende",   name:"El Duende",   art:"🧚",      tag:"Las casas",   accent:"#b15ce0", glow:"rgba(177,92,224,.40)",
+      desc:"Pequeño y travieso, encanta a los niños y esconde tus cosas.", rune:"ᚨ" },
+    { id:"salamanca",name:"La Salamanca", art:"🏚️",     tag:"La cueva",    accent:"#ff9f1c", glow:"rgba(255,159,28,.42)",
+      desc:"Cueva donde, en noche de fiesta, el Diablo enseña a los brujos.", rune:"ᚱ" },
+    { id:"familiar", name:"El Familiar", art:"🐍",      tag:"La brujería", accent:"#e63946", glow:"rgba(230,57,70,.40)",
+      desc:"Serpiente que el brujo cría con la leche de sus propias cabras.", rune:"ᚲ" },
+    { id:"ahogado",  name:"El Ahogado",  art:"🌊",      tag:"El río",      accent:"#2a7fd4", glow:"rgba(42,127,212,.42)",
+      desc:"Alma en pena que busca una mano para llevársela al fondo.", rune:"ᚷ" },
+    { id:"telesita", name:"La Telesita", art:"✨",      tag:"El cielo",    accent:"#ffd166", glow:"rgba(255,209,102,.45)",
+      desc:"Niña hechicera que baja del cielo a bailar en las tardes.", rune:"ᛉ" }
+  ];
+
+  const TOTAL_PAIRS = LEGENDS.length;
+
+  /* ============================================================
+     2. ESTADO
+     ============================================================ */
+  const state = {
+    mode:"1p",
+    players:[{ name:"Jugador 1", score:0 }, { name:"Jugador 2", score:0 }],
+    turn:0,
+    deck:[],          // [{ legend, el }]
+    flipped:[],       // índices boca arriba esperando comparación
+    matchedPairs:0,
+    attempts:0,
+    lock:false,
+    seconds:0,
+    timerId:null,
+    soundOn:true
+  };
+
+  /* ============================================================
+     3. AUDIO · Web Audio (efectos) + Web Speech (voz en español)
+     ============================================================ */
+  let audioCtx = null;
+  function ctx(){
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) audioCtx = new AC();
+    }
+    if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+
+  function tone({ freq=440, dur=.2, type="sine", gain=.14, delay=0, slideTo=null } = {}){
+    const ac = ctx(); if(!ac) return;
+    const t0 = ac.currentTime + delay;
+    const osc = ac.createOscillator();
+    const g = ac.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if(slideTo) osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideTo), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g).connect(ac.destination);
+    osc.start(t0); osc.stop(t0 + dur + .05);
+  }
+
+  function noise({ dur=.25, gain=.1, delay=0, freq=900 } = {}){
+    const ac = ctx(); if(!ac) return;
+    const t0 = ac.currentTime + delay;
+    const len = Math.max(1, Math.floor(ac.sampleRate * dur));
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<len;i++) data[i] = (Math.random()*2-1) * (1 - i/len);
+    const src = ac.createBufferSource(); src.buffer = buf;
+    const flt = ac.createBiquadFilter(); flt.type = "bandpass"; flt.frequency.value = freq; flt.Q.value = .8;
+    const g = ac.createGain(); g.gain.value = gain;
+    src.connect(flt).connect(g).connect(ac.destination);
+    src.start(t0);
+  }
+
+  const sfx = {
+    flip(){ noise({ dur:.12, gain:.07, freq:1500 }); tone({ freq:520, dur:.09, type:"triangle", gain:.05 }); },
+    // ✨ Efecto especial al descubrir un par: arpegio místico + campana + brillo
+    match(){
+      [523.25, 659.25, 783.99, 1046.5].forEach((f,i) =>   // Do–Mi–Sol–Do
+        tone({ freq:f, dur:.5, type:"triangle", gain:.13, delay:i*.09 }));
+      tone({ freq:1318.5, dur:1.1, type:"sine",  gain:.09, delay:.38 });  // campana alta
+      tone({ freq:65.4,   dur:1.4, type:"sine",  gain:.16, delay:0 });    // drone grave
+      noise({ dur:.7, gain:.05, delay:.05, freq:3200 });                   // brillo etéreo
+    },
+    fail(){ tone({ freq:300, dur:.28, type:"sawtooth", gain:.09, slideTo:140 }); tone({ freq:196, dur:.3, type:"triangle", gain:.08, delay:.12 }); },
+    win(){
+      const seq = [523.25, 659.25, 783.99, 1046.5, 987.77, 1046.5];
+      seq.forEach((f,i) => {
+        tone({ freq:f, dur:.45, type:"triangle", gain:.14, delay:i*.16 });
+        tone({ freq:f/2, dur:.6, type:"sine",    gain:.10, delay:i*.16 });
+      });
+      tone({ freq:55, dur:2.6, type:"sine", gain:.18 });
+      noise({ dur:1.6, gain:.06, freq:2600 });
+    },
+    click(){ tone({ freq:880, dur:.07, type:"square", gain:.05 }); }
+  };
+
+  /* --- Síntesis de voz nativa (Web Speech API) --- */
+  let esVoice = null;
+  function pickVoice(){
+    if(!("speechSynthesis" in window)) return null;
+    const voices = speechSynthesis.getVoices();
+    if(!voices.length) return null;
+    esVoice =
+      voices.find(v => /^es[-_]?(AR|419)/i.test(v.lang)) ||
+      voices.find(v => /^es[-_]?(MX|US|ES)/i.test(v.lang)) ||
+      voices.find(v => /^es/i.test(v.lang)) ||
+      null;
+    return esVoice;
+  }
+  if("speechSynthesis" in window){
+    pickVoice();
+    speechSynthesis.onvoiceschanged = pickVoice;
+  }
+
+  function speak(text){
+    if(!state.soundOn || !("speechSynthesis" in window)) return;
+    try{
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "es-AR";
+      if(!esVoice) pickVoice();
+      if(esVoice) u.voice = esVoice;
+      u.rate = .92;
+      u.pitch = 1.08;
+      u.volume = 1;
+      speechSynthesis.speak(u);
+    }catch(e){ /* silencio */ }
+  }
+
+  /* ============================================================
+     4. UTILIDADES
+     ============================================================ */
+  const $  = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  const fmtTime = s => String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0");
+  const artHTML = l => l.art === "ghost" ? GHOST_SVG : l.art;
+  const escapeHTML = s => String(s).replace(/[&<>"']/g, c =>
+    ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+  function setStatus(msg, kind){
+    const el = $("#status");
+    el.textContent = msg;
+    el.className = "status" + (kind ? " " + kind : "");
+  }
+
+  /* ============================================================
+     5. MENÚ
+     ============================================================ */
+  function buildBestiary(){
+    $("#bestiary").innerHTML = LEGENDS.map(l =>
+      '<div class="beast" style="border-color:' + l.accent + '44">' +
+        '<span class="ico" style="box-shadow:0 0 16px ' + l.glow + '">' + artHTML(l) + '</span>' +
+        '<span>' + l.name + '<small>' + l.tag + '</small></span>' +
+      '</div>').join("");
+  }
+
+  function buildEmbers(){
+    let html = "";
+    for(let i=0;i<26;i++){
+      const violet = Math.random() > .55 ? " v" : "";
+      html += '<span class="ember' + violet + '" style="' +
+        "left:" + (Math.random()*100).toFixed(2) + "%;" +
+        "animation-duration:" + (11 + Math.random()*13).toFixed(1) + "s;" +
+        "animation-delay:" + (Math.random()*14).toFixed(1) + "s;" +
+        'transform:scale(' + (.6 + Math.random()*.9).toFixed(2) + ');"></span>';
+    }
+    $("#embers").innerHTML = html;
+  }
+
+  function initMenu(){
+    buildBestiary();
+    buildEmbers();
+
+    $$('input[name="mode"]').forEach(r => r.addEventListener("change", () => {
+      state.mode = $('input[name="mode"]:checked').value;
+      $("#namesBox").classList.toggle("show", state.mode === "2p");
+      sfx.click();
+    }));
+
+    [$("#soundToggle"), $("#soundToggle2")].forEach(btn => btn.addEventListener("click", () => {
+      state.soundOn = !state.soundOn;
+      if(!state.soundOn && "speechSynthesis" in window) speechSynthesis.cancel();
+      $("#soundToggle").textContent  = state.soundOn ? "🔊 Voz: activada" : "🔇 Voz: silenciada";
+      $("#soundToggle").setAttribute("aria-pressed", String(state.soundOn));
+      $("#soundToggle2").textContent = state.soundOn ? "🔊 Voz" : "🔇 Voz";
+      $("#soundToggle2").setAttribute("aria-pressed", String(state.soundOn));
+      if(state.soundOn) sfx.click();
+    }));
+
+    $("#startBtn").addEventListener("click", () => { sfx.click(); readNames(); startGame(); });
+    $("#backBtn").addEventListener("click", () => { sfx.click(); goMenu(); });
+    $("#againBtn").addEventListener("click", () => { sfx.click(); $("#overlay").classList.remove("show"); startGame(); });
+    $("#menuBtn").addEventListener("click",  () => { sfx.click(); goMenu(); });
+  }
+
+  function readNames(){
+    state.players[0].name = ($("#p1Name").value || "").trim() || "Jugador 1";
+    state.players[1].name = ($("#p2Name").value || "").trim() || "Jugador 2";
+  }
+
+  function goMenu(){
+    stopTimer();
+    if("speechSynthesis" in window) speechSynthesis.cancel();
+    $("#overlay").classList.remove("show");
+    $("#gameScreen").classList.remove("active");
+    $("#menuScreen").classList.add("active");
+  }
+
+  /* ============================================================
+     6. PARTIDA
+     ============================================================ */
+  function startGame(){
+    stopTimer();
+    state.turn = 0;
+    state.flipped = [];
+    state.matchedPairs = 0;
+    state.attempts = 0;
+    state.lock = false;
+    state.seconds = 0;
+    state.players[0].score = 0;
+    state.players[1].score = 0;
+
+    const pairs = shuffle(LEGENDS.flatMap(l => [l, l]));
+    const board = $("#board");
+    board.innerHTML = "";
+
+    state.deck = pairs.map((legend, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "card";
+      btn.setAttribute("aria-label", "Carta oculta");
+      btn.style.setProperty("--accent", legend.accent);
+      btn.style.setProperty("--glow", legend.glow);
+      btn.innerHTML =
+        '<span class="card-inner">' +
+          '<span class="face back">' +
+            '<span class="corner c1"></span><span class="corner c2"></span>' +
+            '<span class="corner c3"></span><span class="corner c4"></span>' +
+            '<span class="glyph">' + legend.rune + '</span>' +
+            '<span class="eye">👁</span>' +
+          '</span>' +
+          '<span class="face front">' +
+            '<span class="art">' + artHTML(legend) + '</span>' +
+            '<span class="name">' + legend.name + '</span>' +
+            '<span class="tag">' + legend.tag + '</span>' +
+          '</span>' +
+        '</span>';
+      btn.addEventListener("click", () => onCardClick(i));
+      board.appendChild(btn);
+      return { legend, el:btn };
+    });
+
+    $("#menuScreen").classList.remove("active");
+    $("#gameScreen").classList.add("active");
+    $("#overlay").classList.remove("show");
+
+    renderHUD();
+    setStatus(state.mode === "2p"
+      ? "Comienza " + state.players[0].name + " · elegí dos cartas…"
+      : "Elegí dos cartas para despertar una leyenda…");
+
+    state.timerId = setInterval(() => {
+      state.seconds++;
+      $("#statTime").textContent = fmtTime(state.seconds);
+    }, 1000);
+  }
+
+  function stopTimer(){ if(state.timerId){ clearInterval(state.timerId); state.timerId = null; } }
+
+  function renderHUD(){
+    const panel = $("#playersPanel");
+    if(state.mode === "2p"){
+      panel.innerHTML = state.players.map((p,i) =>
+        '<div class="player ' + (i===0 ? "p1" : "p2") + (i===state.turn ? " active" : "") + '">' +
+          '<div>' +
+            '<div class="plabel">' + (i===0 ? "Jugador 1" : "Jugador 2") + '</div>' +
+            '<div class="pname">' + escapeHTML(p.name) + '</div>' +
+          '</div>' +
+          '<div class="pscore" style="margin-left:auto">' + p.score + '</div>' +
+        '</div>').join("");
+    }else{
+      panel.innerHTML =
+        '<div class="player active">' +
+          '<div><div class="plabel">Modo solitario</div>' +
+          '<div class="pname">Guardián de leyendas</div></div>' +
+          '<div class="pscore" style="margin-left:auto">' + state.players[0].score + '</div>' +
+        '</div>';
+    }
+    $("#statPairs").textContent    = state.matchedPairs + "/" + TOTAL_PAIRS;
+    $("#statAttempts").textContent = state.attempts;
+    $("#statTime").textContent     = fmtTime(state.seconds);
+  }
+
+  /* ============================================================
+     7. JUGADA
+     ============================================================ */
+  function onCardClick(i){
+    if(state.lock) return;
+    const card = state.deck[i];
+    if(!card) return;
+    if(card.el.classList.contains("flipped") || card.el.classList.contains("matched")) return;
+
+    sfx.flip();
+    card.el.classList.add("flipped");
+    card.el.setAttribute("aria-label", card.legend.name + ", carta revelada");
+    state.flipped.push(i);
+
+    if(state.flipped.length === 2){
+      state.attempts++;
+      state.lock = true;
+      renderHUD();
+      evaluate();
+    }
+  }
+
+  function evaluate(){
+    const a = state.deck[state.flipped[0]];
+    const b = state.deck[state.flipped[1]];
+    const isMatch = a.legend.id === b.legend.id;
+
+    if(isMatch){
+      setTimeout(() => {
+        a.el.classList.add("matched");
+        b.el.classList.add("matched");
+        a.el.setAttribute("aria-label", a.legend.name + ", pareja descubierta");
+        b.el.setAttribute("aria-label", b.legend.name + ", pareja descubierta");
+
+        state.matchedPairs++;
+        state.players[state.mode === "2p" ? state.turn : 0].score++;
+        state.flipped = [];
+        state.lock = false;
+
+        // 🎙️ EFECTO ESPECIAL DE AUDIO + VOZ: se pronuncia el nombre de la leyenda
+        sfx.match();
+        speak("¡" + a.legend.name + "!");
+
+        setStatus(state.mode === "2p"
+          ? "¡Pareja de " + a.legend.name + " para " + state.players[state.turn].name + "!"
+          : "¡Pareja de " + a.legend.name + "!", "good");
+
+        renderHUD();
+
+        if(state.matchedPairs === TOTAL_PAIRS){
+          state.lock = true;
+          setTimeout(endGame, 900);
+        }
+      }, 380);
+    }else{
+      sfx.fail();
+      setStatus("No coinciden… las sombras se cierran.", "bad");
+
+      setTimeout(() => { a.el.classList.add("shake"); b.el.classList.add("shake"); }, 340);
+
+      setTimeout(() => {
+        [a, b].forEach(c => {
+          c.el.classList.remove("flipped", "shake");
+          c.el.setAttribute("aria-label", "Carta oculta");
+        });
+        state.flipped = [];
+        state.lock = false;
+
+        if(state.mode === "2p"){
+          state.turn = state.turn === 0 ? 1 : 0;
+          setStatus("Le toca a " + state.players[state.turn].name + " · suerte esta vez…", "turn");
+        }else{
+          setStatus("Otra vez… memorizá las posiciones.");
+        }
+        renderHUD();
+      }, 1000);
+    }
+  }
+
+  /* ============================================================
+     8. FIN DEL JUEGO
+     ============================================================ */
+  function endGame(){
+    stopTimer();
+    sfx.win();
+
+    const title = $("#winTitle");
+    const who   = $("#winWho");
+    const msg   = $("#winMsg");
+    const stats = $("#finalStats");
+
+    if(state.mode === "2p"){
+      const p1 = state.players[0], p2 = state.players[1];
+      if(p1.score > p2.score){
+        title.textContent = "¡Victoria!";
+        who.innerHTML = '🌙 Gana <b>' + escapeHTML(p1.name) + '</b>';
+        msg.textContent = "Las leyendas inclinan la balanza hacia " + p1.name +
+          ", que reunió " + p1.score + " almas contra " + p2.score + " de " + p2.name + ".";
+        speak("¡Felicidades " + p1.name + "! ¡Has ganado el memotest de las leyendas!");
+      }else if(p2.score > p1.score){
+        title.textContent = "¡Victoria!";
+        who.innerHTML = '🔮 Gana <b>' + escapeHTML(p2.name) + '</b>';
+        msg.textContent = p2.name + " reunió " + p2.score + " almas contra " + p1.score +
+          " de " + p1.name + ". La noche es suya.";
+        speak("¡Felicidades " + p2.name + "! ¡Has ganado el memotest de las leyendas!");
+      }else{
+        title.textContent = "¡Empate ancestral!";
+        who.innerHTML = '⚖️ <b>' + escapeHTML(p1.name) + '</b> y <b>' + escapeHTML(p2.name) + '</b>';
+        msg.textContent = "Ambos reunieron " + p1.score + " almas. Las leyendas no saben decidir… ¿otra ronda?";
+        speak("¡Empate! Ambos reunieron la misma cantidad de almas.");
+      }
+      stats.innerHTML =
+        fs(p1.score, p1.name) + fs(p2.score, p2.name) +
+        fs(fmtTime(state.seconds), "Duración") + fs(state.attempts, "Intentos");
+    }else{
+      const perfect = state.attempts === TOTAL_PAIRS;
+      title.textContent = "¡Ritual completado!";
+      who.innerHTML = '🏆 <b>' + state.players[0].score + " / " + TOTAL_PAIRS + '</b> parejas';
+      msg.textContent = perfect
+        ? "¡Memoria perfecta! No fallaste ni una sola vez. El monte te proclama maestro de leyendas."
+        : "Despertaste a las 8 leyendas de Jujuy en " + fmtTime(state.seconds) + ". El incienso sigue ardiendo…";
+      speak(perfect
+        ? "¡Memoria perfecta! ¡No fallaste ni una vez!"
+        : "¡Felicidades! ¡Has completado todas las parejas!");
+      stats.innerHTML =
+        fs(state.attempts, "Intentos") +
+        fs(fmtTime(state.seconds), "Tiempo") +
+        fs(TOTAL_PAIRS, "Parejas");
+    }
+
+    $("#overlay").classList.add("show");
+    launchConfetti();
+  }
+
+  function fs(v, k){
+    return '<div class="fs"><div class="v">' + escapeHTML(String(v)) +
+           '</div><div class="k">' + escapeHTML(k) + '</div></div>';
+  }
+
+  function launchConfetti(){
+    const box = $(".victory");
+    Array.from(box.querySelectorAll(".confetti")).forEach(n => n.remove());
+    const colors = ["#ff7a18","#ffd166","#8b46d6","#d9a441","#e63946","#43aa5a"];
+    for(let i=0;i<46;i++){
+      const c = document.createElement("span");
+      c.className = "confetti";
+      c.style.left = (Math.random()*100) + "%";
+      c.style.background = colors[i % colors.length];
+      c.style.animationDuration = (1.8 + Math.random()*2.2) + "s";
+      c.style.animationDelay = (Math.random()*.9) + "s";
+      c.style.transform = "rotate(" + (Math.random()*360) + "deg)";
+      box.appendChild(c);
+    }
+    setTimeout(() => Array.from(box.querySelectorAll(".confetti")).forEach(n => n.remove()), 5400);
+  }
+
+  /* ============================================================
+     9. ARRANQUE
+     ============================================================ */
+  initMenu();
+  renderHUD();
+})();
+</script>
+</body>
+</html>
