@@ -534,8 +534,9 @@
 
         <p class="rules">
           <b>Cómo se juega:</b> volteá dos cartas; si muestran la misma leyenda, el par queda revelado,
-          <b>una voz ancestral pronuncia su nombre</b> y, al terminar, <b>suena el rugido / lamento /
-          crujido</b> característico de esa bestia. Tablero de <b>4 × 4</b> = 8 parejas.
+          <b>una voz ancestral pronuncia su nombre</b> mientras <b>suena el rugido / lamento /
+          crujido</b> característico de esa bestia (máx. 5 segundos).
+          Tablero de <b>4 × 4</b> = 8 parejas.
           En modo de dos jugadores, fallar pasa el turno al rival.
         </p>
       </div>
@@ -661,6 +662,20 @@
     return audioCtx;
   }
 
+  /* Bus master del ambiente de las bestias: permite bajar el volumen del
+     sonido mientras la voz nombra la leyenda (ducking) sin tocar los
+     otros efectos del juego (volteo, fallo, victoria).                */
+  let ambientGainNode = null;
+  function ambientBus(){
+    const ac = ctx(); if(!ac) return null;
+    if(!ambientGainNode){
+      ambientGainNode = ac.createGain();
+      ambientGainNode.gain.value = 1;
+      ambientGainNode.connect(ac.destination);
+    }
+    return ambientGainNode;
+  }
+
   function tone({ freq=440, dur=.2, type="sine", gain=.14, delay=0, slideTo=null } = {}){
     const ac = ctx(); if(!ac) return;
     const t0 = ac.currentTime + delay;
@@ -738,7 +753,7 @@
       last.connect(p);
       last = p;
     }
-    last.connect(dest || ac.destination);
+    last.connect(dest || ambientBus() || ac.destination);
     return last;
   }
 
@@ -749,7 +764,8 @@
     const d = ac.createDelay(1.5); d.delayTime.value = o.time || .25;
     const fb = ac.createGain();   fb.gain.value  = o.feedback == null ? .38 : o.feedback;
     const wet = ac.createGain();  wet.gain.value = o.mix == null ? .45 : o.mix;
-    node.connect(d); d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(ac.destination);
+    node.connect(d); d.connect(fb); fb.connect(d); d.connect(wet);
+    wet.connect(ambientBus() || ac.destination);
   }
 
   // Envoltura de amplitud (ataque suave, cola que se apaga)
@@ -816,7 +832,7 @@
     // 👻 LA LLORONA: lamento largo, que sube y baja, con eco y agua helada
     llorona(){
       const ac = ctx(); if(!ac) return;
-      const bus = ac.createGain(); bus.connect(ac.destination);
+      const bus = ac.createGain(); bus.connect(ambientBus());
       echo(bus, { time:.3, feedback:.44, mix:.5 });
       toneOut({ type:"sine",      freq:540, freqTo:300, dur:2.2, gain:.15, atk:.35, vib:{ rate:5.4, depth:26 }, dest:bus });
       toneOut({ type:"triangle",  freq:546, freqTo:306, dur:2.2, gain:.05, atk:.5,  vib:{ rate:5.1, depth:28 }, pan:-.7, dest:bus });
@@ -842,7 +858,7 @@
     // 🧚 EL DUENDE: risita traviesa con eco de escondite
     duende(){
       const ac = ctx(); if(!ac) return;
-      const bus = ac.createGain(); bus.connect(ac.destination);
+      const bus = ac.createGain(); bus.connect(ambientBus());
       echo(bus, { time:.17, feedback:.34, mix:.42 });
       [1180, 1360, 1540, 1430, 1690].forEach((f, i) =>
         toneOut({ type:"triangle", freq:f, freqTo:f * 1.14, dur:.1, gain:.08, atk:.01,
@@ -852,7 +868,7 @@
     // 🏚️ LA SALAMANCA: rumor de cueva + campana de bronce + susurro del Diablo
     salamanca(){
       const ac = ctx(); if(!ac) return;
-      const bus = ac.createGain(); bus.connect(ac.destination);
+      const bus = ac.createGain(); bus.connect(ambientBus());
       echo(bus, { time:.44, feedback:.5, mix:.55 });
       noiseOut({ dur:2.1, gain:.1, type:"lowpass", freq:130, freqTo:70, q:1.2, atk:.35, dest:bus });
       toneOut({ type:"sine", freq:466, dur:1.7, gain:.07, atk:.005, dest:bus });
@@ -871,7 +887,7 @@
     // 🌊 EL AHOGADO: corriente fría, burbujas y respiración bajo el agua
     ahogado(){
       const ac = ctx(); if(!ac) return;
-      const bus = ac.createGain(); bus.connect(ac.destination);
+      const bus = ac.createGain(); bus.connect(ambientBus());
       echo(bus, { time:.3, feedback:.34, mix:.4 });
       noiseOut({ dur:2, gain:.07, type:"lowpass", freq:520, freqTo:300, q:1, atk:.4, dest:bus });
       [0, .18, .3, .52, .68].forEach((d, i) =>
@@ -882,7 +898,7 @@
     // ✨ LA TELESITA: destello celeste, pura luz que titila
     telesita(){
       const ac = ctx(); if(!ac) return;
-      const bus = ac.createGain(); bus.connect(ac.destination);
+      const bus = ac.createGain(); bus.connect(ambientBus());
       echo(bus, { time:.36, feedback:.4, mix:.5 });
       [1760, 2217, 2637, 3136, 3520].forEach((f, i) =>
         toneOut({ type:"sine", freq:f, dur:.7, gain:.05, atk:.005, delay:i * .1, dest:bus }));
@@ -897,13 +913,48 @@
      Mismo sondeo HEAD + caché que las imágenes.                        */
   const AUDIO_EXTS  = ["mp3", "ogg", "m4a", "wav"];
   const AUDIO_VOLUME = .8;                    // volumen de los archivos propios
+  const MAX_AMBIENCE = 5;                     // segundos máx. del sonido de la bestia
   const audioCache  = new Map();
   let   ambienceAudio = null;                 // archivo que está sonando ahora
+  let   duckLevel = 1;                        // 1 = volumen normal del ambiente
+
+  /* Ducking: el ambiente baja mientras la voz nombra la leyenda y vuelve
+     a subir cuando termina, para que se escuche bien el nombre          */
+  function duckAmbience(on){
+    duckLevel = on ? .45 : 1;
+    if(ambienceAudio && !ambienceAudio.__fading){
+      try{ ambienceAudio.volume = AUDIO_VOLUME * duckLevel; }catch(e){ /* silencio */ }
+    }
+    const ac = ctx();
+    if(ambientGainNode && ac){
+      try{ ambientGainNode.gain.setTargetAtTime(duckLevel, ac.currentTime, .08); }catch(e){ }
+    }
+  }
 
   function stopAmbience(){
+    duckAmbience(false);
     if(!ambienceAudio) return;
     try{ ambienceAudio.pause(); ambienceAudio.currentTime = 0; }catch(e){ /* silencio */ }
     ambienceAudio = null;
+  }
+
+  /* Tope duro: si el archivo dura más de MAX_AMBIENCE segundos se
+     desvanece y se corta solo (los efectos de bestia deben ser breves) */
+  function scheduleAmbienceCap(a){
+    const fade = 700;                                  // ms del fundido final
+    setTimeout(() => {
+      if(ambienceAudio !== a || a.paused) return;
+      a.__fading = true;                               // duckAmbience ya no lo toca
+      const v0 = a.volume, t0 = performance.now();
+      const tick = () => {
+        if(a.paused) return;
+        const k = Math.min(1, (performance.now() - t0) / fade);
+        try{ a.volume = Math.max(0, v0 * (1 - k)); }catch(e){ }
+        if(k < 1) requestAnimationFrame(tick);
+        else { try{ a.pause(); }catch(e){ } if(ambienceAudio === a) ambienceAudio = null; }
+      };
+      requestAnimationFrame(tick);
+    }, Math.max(300, MAX_AMBIENCE * 1000 - fade));
   }
 
   async function audioURLs(legend){
@@ -944,15 +995,17 @@
           if(i >= urls.length || settled) return give(false);
           const a = new Audio();
           a.preload = "auto";
-          a.volume = AUDIO_VOLUME;
+          a.volume = AUDIO_VOLUME * duckLevel;
           a.addEventListener("error", next, { once:true });
           a.addEventListener("canplay", () => {
             if(settled){ return; }               // ya se resolvió (ej.: otro archivo sonando)
             ambienceAudio = a;
+            a.volume = AUDIO_VOLUME * duckLevel;
             a.onended = () => { if(ambienceAudio === a) ambienceAudio = null; };
             const p = a.play();
             if(p && typeof p.then === "function") p.then(() => give(true)).catch(() => give(false));
             else give(true);
+            scheduleAmbienceCap(a);
           }, { once:true });
           a.src = urls[i++];
           a.load();
@@ -972,7 +1025,10 @@
   }
 
   /* ============================================================
-     3c. SECUENCIA DEL ACIERTO: chispa → voz → sonido de la bestia
+     3c. SECUENCIA DEL ACIERTO: chispa + voz y sonido EN SIMULTÁNEO
+     El sonido de la bestia entra junto con la voz (con el volumen
+     rebajado hasta que la voz termina) y se apaga solo a los
+     MAX_AMBIENCE segundos como máximo.
      ============================================================ */
   function speakThen(text, onDone){
     const done = typeof onDone === "function" ? onDone : function(){};
@@ -1000,15 +1056,16 @@
   function speak(text){ speakThen(text, null); }
 
   // Al descubrir un par: ① brillo inmediato  ② la voz nombra a la leyenda
-  // ③ recién entonces entra el sonido ambiental característica de esa bestia
+  //    y ③ el sonido de esa bestia entra EN SIMULTÁNEO con la voz (con el
+  //    volumen rebajado hasta que la voz termina; tope de MAX_AMBIENCE s)
   function playMatchSequence(legend){
     if(!state.soundOn) return;
     stopAmbience();               // un acierto nuevo corta el sonido anterior
     sfx.spark();
+    duckAmbience(true);           // ambiente rebajado mientras habla la voz
+    playAmbient(legend);          // entra en paralelo con la voz
     speakThen("¡" + legend.name + "!", function(){
-      if(!state.soundOn) return;
-      if(!document.querySelector("#gameScreen").classList.contains("active")) return;
-      playAmbient(legend);
+      duckAmbience(false);        // voz terminada: el ambiente vuelve a su volumen
     });
   }
 

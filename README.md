@@ -8,9 +8,11 @@ Memotest (juego de memoria) con temática de **mitos y leyendas del noroeste arg
 2. Elegí el modo:
    - **Un Jugador**: contador de intentos y cronómetro.
    - **Dos Jugadores (Local / Turnos)**: ingresás los nombres y cada pareja suma un punto al jugador en turno. Fallar pasa el turno al rival.
-3. Volteá dos cartas: si son la misma leyenda, el par queda revelado, suena un brillo místico,
-   **una voz en español pronuncia el nombre del personaje** (Web Speech Synthesis API) y, al
-   terminar de hablar, entra **el sonido ambiental de terror característico de esa bestia**.
+3. Volteá dos cartas: si son la misma leyenda, el par queda revelado, suena un brillo místico y
+   **una voz en español pronuncia el nombre del personaje** (Web Speech Synthesis API) mientras,
+   **en simultáneo y con el volumen rebajado**, entra **el sonido ambiental de terror característico
+   de esa bestia** (Web Audio API). Al terminar de hablar, el sonido sube a su volumen normal y se
+   apaga solo a los **5 segundos** como máximo.
 4. Descubrí las 8 parejas del tablero 4 × 4 para completar el ritual.
 
 ## 👻 Bestiario (las 8 cartas)
@@ -30,10 +32,13 @@ Memotest (juego de memoria) con temática de **mitos y leyendas del noroeste arg
 
 - **Modo oscuro** obligatorio: negros/grises profundos, naranja fuego (calabaza), morados místicos y bordes dorados rústicos.
 - Animación de volteo **3D flip** con `transform-style: preserve-3d` y `backface-visibility`.
-- **Secuencia multimedia al acertar un par** (dos efectos en orden, no se pisan):
+- **Secuencia multimedia al acertar un par**:
   1. ✨ un brillo místico breve de feedback;
-  2. 🎙️ `speechSynthesis` **nombra a la leyenda** en español (`lang = "es-AR"`, voz española elegida automáticamente);
-  3. 👻 **recién cuando termina de hablar** entra el **sonido ambiental de terror** de esa bestia.
+  2. 🎙️ `speechSynthesis` **nombra a la leyenda** en español (`lang = "es-AR"`, voz española elegida
+     automáticamente) y, **en simultáneo**, entra el **sonido ambiental de terror** de esa bestia
+     con el volumen **rebajado (ducking)** hasta que la voz termina — así se escucha claro el nombre;
+  3. ⏱️ el ambiente **se apaga solo a los 5 segundos** como máximo (con un fade corto): sirve
+     igual con archivos propios larguísimos (probado con un MP3 de 40 s → se corta a los 5 s).
 - **Un rugido / lamento / crujido por criatura**, sintetizado en vivo con Web Audio API (osciladores, ruido filtrado, vibrato, eco y paneo):
 
   | Leyenda | Ambiente |
@@ -86,19 +91,25 @@ imágenes: sondeo automático y respaldo sin tocar el código.
 
 | Leyenda | Nombre de archivo |
 | --- | --- |
-| La Llorona | `sound/llorona.mp3` (o `.ogg` / `.m4a` / `.wav`) |
-| El Ucumar | `sound/ucumar.mp3` |
-| El Pombero | `sound/pombero.mp3` |
-| El Duende | `sound/duende.mp3` |
-| La Salamanca | `sound/salamanca.mp3` |
-| El Familiar | `sound/familiar.mp3` |
-| El Ahogado | `sound/ahogado.mp3` |
-| La Telesita | `sound/telesita.mp3` |
+| La Llorona | `sound/llorona.mp3` ✔ |
+| El Ucumar | `sound/ucumar.mp3` ✔ |
+| El Pombero | `sound/pombero.mp3` ✔ |
+| El Duende | `sound/duende.mp3` ✔ |
+| La Salamanca | `sound/salamanca.mp3` ✔ |
+| El Familiar | `sound/familiar.mp3` ✔ |
+| El Ahogado | `sound/ahogado.wav` ✔ *(corriente fría, burbujas y respiración bajo el agua)* |
+| La Telesita | `sound/telesita.wav` ✔ *(destello celeste: campanillas, titileos y luz de fondo)* |
+
+✔ = archivo incluido en el repositorio. Los dos últimos (Ahogado y Telesita) fueron **generados a
+medida** con sintesis de audio (PCM WAV, ~170-190 KB c/u): cámbialos por los tuyos cuando quieras,
+con el mismo nombre, y los toma el juego sin editar nada.
 
 - Extensiones buscadas, en orden: `.mp3` → `.ogg` → `.m4a` → `.wav`.
 - También se aceptan otros nombres: `sound/la llorona.mp3`, `sound/el duende.mp3`, etc.
 - Podés forzar una ruta exacta con el campo `sound:"ruta/archivo.mp3"` en el array `LEGENDS`.
-- Duración ideal: **2 a 4 segundos** (sonido ambiental corto, no música larga).
+- **Duración**: lo ideal son 2 a 4 segundos. Aunque el archivo dure más (o mucho más), el juego
+  lo **desvanece y corta solo a los 5 segundos** — ningún archivo puede frenar el ritmo del juego.
+- El sonido entra **en simultáneo con la voz**, con el volumen rebajado hasta que la voz termina.
 - El botón 🔊 Sonido corta el archivo al instante, igual que la voz.
 
 ## 🚀 Publicar en GitHub Pages
