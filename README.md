@@ -8,7 +8,9 @@ Memotest (juego de memoria) con temática de **mitos y leyendas del noroeste arg
 2. Elegí el modo:
    - **Un Jugador**: contador de intentos y cronómetro.
    - **Dos Jugadores (Local / Turnos)**: ingresás los nombres y cada pareja suma un punto al jugador en turno. Fallar pasa el turno al rival.
-3. Volteá dos cartas: si son la misma leyenda, el par queda revelado, suena un arpegio místico y **una voz en español pronuncia el nombre del personaje** (Web Speech Synthesis API).
+3. Volteá dos cartas: si son la misma leyenda, el par queda revelado, suena un brillo místico,
+   **una voz en español pronuncia el nombre del personaje** (Web Speech Synthesis API) y, al
+   terminar de hablar, entra **el sonido ambiental de terror característico de esa bestia**.
 4. Descubrí las 8 parejas del tablero 4 × 4 para completar el ritual.
 
 ## 👻 Bestiario (las 8 cartas)
@@ -28,8 +30,26 @@ Memotest (juego de memoria) con temática de **mitos y leyendas del noroeste arg
 
 - **Modo oscuro** obligatorio: negros/grises profundos, naranja fuego (calabaza), morados místicos y bordes dorados rústicos.
 - Animación de volteo **3D flip** con `transform-style: preserve-3d` y `backface-visibility`.
-- **Voz nativa**: `window.speechSynthesis` con `lang = "es-AR"` y selección automática de una voz española.
-- **Efectos de sonido** sintetizados en tiempo real con Web Audio API (osciladores + ruido filtrado): volteo, fallo, pareja y victoria.
+- **Secuencia multimedia al acertar un par** (dos efectos en orden, no se pisan):
+  1. ✨ un brillo místico breve de feedback;
+  2. 🎙️ `speechSynthesis` **nombra a la leyenda** en español (`lang = "es-AR"`, voz española elegida automáticamente);
+  3. 👻 **recién cuando termina de hablar** entra el **sonido ambiental de terror** de esa bestia.
+- **Un rugido / lamento / crujido por criatura**, sintetizado en vivo con Web Audio API (osciladores, ruido filtrado, vibrato, eco y paneo):
+
+  | Leyenda | Ambiente |
+  | --- | --- |
+  | La Llorona | lamento que sube y baja, con eco y aliento de agua helada |
+  | El Ucumar | rugido sordo y gutural con entrañas temblando |
+  | El Pombero | crujidos de ramas + su silbido de aviso |
+  | El Duende | risita traviesa con eco de escondite |
+  | La Salamanca | rumor de cueva + campana de bronce + susurro |
+  | El Familiar | siseo de serpiente y cascabel seco |
+  | El Ahogado | corriente fría, burbujas y respiración bajo el agua |
+  | La Telesita | destello celeste, luz que titila |
+
+  Todo es **audio sintetizado (sin URLs externas)**: no depende de la red, no hay problemas de licencia y el juego sigue siendo un único HTML.
+- Resto de los efectos: volteo, fallo, victoria y clic, también con Web Audio API.
+- Botón **🔊 Sonido** para silenciar voz + ambientes en cualquier momento.
 - Indicador visual de turno, marcador por jugador, cronómetro y estadísticas finales.
 - Accesibilidad: cartas como botones reales con `aria-label` dinámico, región `aria-live`, foco visible y soporte de `prefers-reduced-motion`.
 

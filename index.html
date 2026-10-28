@@ -529,12 +529,13 @@
 
         <div class="actions">
           <button class="btn" id="startBtn">🕯️ Iniciar la partida</button>
-          <button class="btn ghost" id="soundToggle" aria-pressed="true">🔊 Voz: activada</button>
+          <button class="btn ghost" id="soundToggle" aria-pressed="true">🔊 Sonido: activado</button>
         </div>
 
         <p class="rules">
-          <b>Cómo se juega:</b> volteá dos cartas; si muestran la misma leyenda, el par queda revelado
-          y <b>una voz ancestral pronunciará su nombre</b>. Tablero de <b>4 × 4</b> = 8 parejas.
+          <b>Cómo se juega:</b> volteá dos cartas; si muestran la misma leyenda, el par queda revelado,
+          <b>una voz ancestral pronuncia su nombre</b> y, al terminar, <b>suena el rugido / lamento /
+          crujido</b> característico de esa bestia. Tablero de <b>4 × 4</b> = 8 parejas.
           En modo de dos jugadores, fallar pasa el turno al rival.
         </p>
       </div>
@@ -558,7 +559,7 @@
     <div class="topbar">
       <button class="btn ghost" id="backBtn" style="padding:9px 18px; font-size:.78rem;">← Menú</button>
       <div class="mini-title">Memoria Ancestral · Tablero 4 × 4</div>
-      <button class="btn ghost" id="soundToggle2" style="padding:9px 18px; font-size:.78rem;" aria-pressed="true">🔊 Voz</button>
+      <button class="btn ghost" id="soundToggle2" style="padding:9px 18px; font-size:.78rem;" aria-pressed="true">🔊 Sonido</button>
     </div>
 
     <div class="hud">
@@ -575,7 +576,7 @@
     </div>
 
     <div class="status" id="status" role="status" aria-live="polite">Elegí dos cartas para despertar una leyenda…</div>
-    <div class="footnote">Haz clic en dos cartas · las parejas acertadas suenan en voz alta</div>
+    <div class="footnote">Haz clic en dos cartas · al acertar: voz + sonido ambiental de la bestia</div>
   </section>
 </div>
 
@@ -691,13 +692,11 @@
 
   const sfx = {
     flip(){ noise({ dur:.12, gain:.07, freq:1500 }); tone({ freq:520, dur:.09, type:"triangle", gain:.05 }); },
-    // ✨ Efecto especial al descubrir un par: arpegio místico + campana + brillo
-    match(){
-      [523.25, 659.25, 783.99, 1046.5].forEach((f,i) =>   // Do–Mi–Sol–Do
-        tone({ freq:f, dur:.5, type:"triangle", gain:.13, delay:i*.09 }));
-      tone({ freq:1318.5, dur:1.1, type:"sine",  gain:.09, delay:.38 });  // campana alta
-      tone({ freq:65.4,   dur:1.4, type:"sine",  gain:.16, delay:0 });    // drone grave
-      noise({ dur:.7, gain:.05, delay:.05, freq:3200 });                   // brillo etéreo
+    // ✨ Feedback inmediato del acierto: breve y suave para no tapar la voz
+    spark(){
+      tone({ freq:880,  dur:.28, type:"triangle", gain:.09 });
+      tone({ freq:1318.5, dur:.7, type:"sine",   gain:.07, delay:.06 });  // campana tenue
+      noise({ dur:.35, gain:.035, delay:.02, freq:3400 });                 // brillo etéreo
     },
     fail(){ tone({ freq:300, dur:.28, type:"sawtooth", gain:.09, slideTo:140 }); tone({ freq:196, dur:.3, type:"triangle", gain:.08, delay:.12 }); },
     win(){
@@ -711,6 +710,231 @@
     },
     click(){ tone({ freq:880, dur:.07, type:"square", gain:.05 }); }
   };
+
+  /* ============================================================
+     3b. AMBIENCIA DE TERROR · un sonido espeluznante por criatura
+     Sintetizado en el momento con Web Audio (sin archivos externos:
+     el juego sigue siendo un único HTML y funciona sin internet).
+     Cada bestia tiene su característica:
+       Llorona → lamento con eco   · Ucumar → rugido sordo
+       Pombero → crujidos+silbido  · Duende → risita traviesa
+       Salamanca → cueva/campana   · Familiar → siseo+cascabel
+       Ahogado → burbujas/fondo    · Telesita → destello celeste
+     ============================================================ */
+  function noiseBuffer(ac, dur){
+    const len = Math.max(1, Math.floor(ac.sampleRate * dur));
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+
+  function route(node, pan, dest){
+    const ac = ctx();
+    let last = node;
+    if(pan && typeof ac.createStereoPanner === "function"){
+      const p = ac.createStereoPanner();
+      p.pan.value = Math.max(-1, Math.min(1, pan));
+      last.connect(p);
+      last = p;
+    }
+    last.connect(dest || ac.destination);
+    return last;
+  }
+
+  // Eco: le da la profundidad de cueva / quebrada
+  function echo(node, opts){
+    const ac = ctx(); if(!ac) return;
+    const o = opts || {};
+    const d = ac.createDelay(1.5); d.delayTime.value = o.time || .25;
+    const fb = ac.createGain();   fb.gain.value  = o.feedback == null ? .38 : o.feedback;
+    const wet = ac.createGain();  wet.gain.value = o.mix == null ? .45 : o.mix;
+    node.connect(d); d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(ac.destination);
+  }
+
+  // Envoltura de amplitud (ataque suave, cola que se apaga)
+  function voiceOut(ac, t0, dur, peak, atk){
+    const g = ac.createGain();
+    const p = Math.max(0.0002, peak);
+    const a = Math.max(0.005, Math.min(atk || .03, dur * .45));
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(p, t0 + a);
+    g.gain.linearRampToValueAtTime(p * .8, t0 + Math.max(a + .01, dur * .7));
+    g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+    return g;
+  }
+
+  function toneOut(o){
+    const ac = ctx(); if(!ac) return null;
+    const dur = o.dur || 1;
+    const t0 = ac.currentTime + (o.delay || 0);
+    const osc = ac.createOscillator();
+    osc.type = o.type || "sine";
+    osc.frequency.setValueAtTime(o.freq || 440, t0);
+    if(o.freqTo){
+      if(o.lin) osc.frequency.linearRampToValueAtTime(o.freqTo, t0 + dur);
+      else osc.frequency.exponentialRampToValueAtTime(Math.max(20, o.freqTo), t0 + dur);
+    }
+    if(o.vib){                                     // vibrato (voz humana / lamento)
+      const l = ac.createOscillator(); l.frequency.value = o.vib.rate;
+      const lg = ac.createGain();      lg.gain.value = o.vib.depth;
+      l.connect(lg); lg.connect(osc.frequency);
+      l.start(t0); l.stop(t0 + dur + .1);
+    }
+    const g = voiceOut(ac, t0, dur, o.gain == null ? .1 : o.gain, o.atk);
+    osc.connect(g);
+    route(g, o.pan, o.dest);
+    osc.start(t0); osc.stop(t0 + dur + .12);
+    return g;
+  }
+
+  function noiseOut(o){
+    const ac = ctx(); if(!ac) return null;
+    const dur = o.dur || .5;
+    const t0 = ac.currentTime + (o.delay || 0);
+    const src = ac.createBufferSource();
+    src.buffer = noiseBuffer(ac, dur + .1);
+    const f = ac.createBiquadFilter();
+    f.type = o.type || "bandpass";
+    f.frequency.setValueAtTime(o.freq || 1200, t0);
+    if(o.freqTo) f.frequency.exponentialRampToValueAtTime(Math.max(30, o.freqTo), t0 + dur);
+    f.Q.value = o.q == null ? 1 : o.q;
+    const g = voiceOut(ac, t0, dur, o.gain == null ? .07 : o.gain, o.atk);
+    if(o.lfo){                                      // temblor (growl, cascabel)
+      const l = ac.createOscillator(); l.frequency.value = o.lfo.rate;
+      const lg = ac.createGain();      lg.gain.value = (o.gain == null ? .07 : o.gain) * (o.lfo.depth == null ? .5 : o.lfo.depth);
+      l.connect(lg); lg.connect(g.gain);
+      l.start(t0); l.stop(t0 + dur + .1);
+    }
+    src.connect(f); f.connect(g);
+    route(g, o.pan, o.dest);
+    src.start(t0); src.stop(t0 + dur + .1);
+    return g;
+  }
+
+  const AMBIENCE = {
+    // 👻 LA LLORONA: lamento largo, que sube y baja, con eco y agua helada
+    llorona(){
+      const ac = ctx(); if(!ac) return;
+      const bus = ac.createGain(); bus.connect(ac.destination);
+      echo(bus, { time:.3, feedback:.44, mix:.5 });
+      toneOut({ type:"sine",      freq:540, freqTo:300, dur:2.2, gain:.15, atk:.35, vib:{ rate:5.4, depth:26 }, dest:bus });
+      toneOut({ type:"triangle",  freq:546, freqTo:306, dur:2.2, gain:.05, atk:.5,  vib:{ rate:5.1, depth:28 }, pan:-.7, dest:bus });
+      toneOut({ type:"sine",      freq:1080, freqTo:600, dur:2.1, gain:.03, atk:.6, pan:.7, dest:bus });
+      noiseOut({ dur:2.2, gain:.04, type:"lowpass", freq:900, freqTo:500, q:.6, atk:.7, dest:bus });
+    },
+    // 🐻 EL UCUMAR: rugido sordo y gutural, con entrañas temblando
+    ucumar(){
+      toneOut({ type:"sawtooth", freq:94, freqTo:44, dur:1.7, gain:.2,   atk:.1,  lin:true, vib:{ rate:11, depth:9 } });
+      toneOut({ type:"sawtooth", freq:71, freqTo:37, dur:1.7, gain:.13,  atk:.14, lin:true, pan:.3 });
+      noiseOut({ dur:1.6, gain:.1, type:"lowpass", freq:430, freqTo:170, q:.9, atk:.08, lfo:{ rate:14, depth:.65 } });
+      toneOut({ type:"sine", freq:58, freqTo:33, dur:1.8, gain:.15, atk:.2 });
+    },
+    // 🐦 EL POMBERO: crujidos de ramas y su silbido de aviso
+    pombero(){
+      [0, .13, .26, .44].forEach((d, i) =>
+        noiseOut({ dur:.16 + i * .03, gain:.09 - i * .012, type:"bandpass",
+                   freq:640 + i * 260, freqTo:1500 + i * 300, q:7, delay:d, atk:.005,
+                   pan:i % 2 ? .5 : -.5 }));
+      toneOut({ type:"sine", freq:1560, freqTo:960, dur:.85, gain:.07, atk:.1, vib:{ rate:6.5, depth:30 }, delay:.6 });
+      noiseOut({ dur:1.3, gain:.03, type:"bandpass", freq:2300, q:1.3, atk:.35, delay:.55 });
+    },
+    // 🧚 EL DUENDE: risita traviesa con eco de escondite
+    duende(){
+      const ac = ctx(); if(!ac) return;
+      const bus = ac.createGain(); bus.connect(ac.destination);
+      echo(bus, { time:.17, feedback:.34, mix:.42 });
+      [1180, 1360, 1540, 1430, 1690].forEach((f, i) =>
+        toneOut({ type:"triangle", freq:f, freqTo:f * 1.14, dur:.1, gain:.08, atk:.01,
+                  delay:.05 + i * .11, pan:i % 2 ? .6 : -.6, dest:bus }));
+      toneOut({ type:"sine", freq:72, freqTo:96, dur:1.1, gain:.05, atk:.3, dest:bus });
+    },
+    // 🏚️ LA SALAMANCA: rumor de cueva + campana de bronce + susurro del Diablo
+    salamanca(){
+      const ac = ctx(); if(!ac) return;
+      const bus = ac.createGain(); bus.connect(ac.destination);
+      echo(bus, { time:.44, feedback:.5, mix:.55 });
+      noiseOut({ dur:2.1, gain:.1, type:"lowpass", freq:130, freqTo:70, q:1.2, atk:.35, dest:bus });
+      toneOut({ type:"sine", freq:466, dur:1.7, gain:.07, atk:.005, dest:bus });
+      toneOut({ type:"sine", freq:704, dur:1.5, gain:.05, atk:.005, dest:bus });
+      toneOut({ type:"sine", freq:937, dur:1.3, gain:.03, atk:.005, dest:bus });
+      noiseOut({ dur:.9, gain:.05, type:"bandpass", freq:2700, freqTo:1500, q:2.4, atk:.2, delay:.5, pan:.4, dest:bus });
+    },
+    // 🐍 EL FAMILIAR: siseo de serpiente y cascabel seco
+    familiar(){
+      noiseOut({ dur:1.5, gain:.075, type:"bandpass", freq:4200, freqTo:6400, q:1.3, atk:.25 });
+      noiseOut({ dur:.4,  gain:.05,  type:"highpass", freq:7000, q:.7, atk:.05, delay:.1, pan:.4 });
+      for(let i = 0; i < 9; i++)
+        noiseOut({ dur:.05, gain:.05, type:"bandpass", freq:1700, q:9, atk:.004, delay:1.0 + i * .055, pan:.3 });
+      toneOut({ type:"sine", freq:120, freqTo:70, dur:1.4, gain:.07, atk:.2 });
+    },
+    // 🌊 EL AHOGADO: corriente fría, burbujas y respiración bajo el agua
+    ahogado(){
+      const ac = ctx(); if(!ac) return;
+      const bus = ac.createGain(); bus.connect(ac.destination);
+      echo(bus, { time:.3, feedback:.34, mix:.4 });
+      noiseOut({ dur:2, gain:.07, type:"lowpass", freq:520, freqTo:300, q:1, atk:.4, dest:bus });
+      [0, .18, .3, .52, .68].forEach((d, i) =>
+        toneOut({ type:"sine", freq:190 + i * 40, freqTo:440 + i * 60, dur:.14, gain:.07,
+                  atk:.02, delay:d, pan:i % 2 ? -.5 : .5, lin:true, dest:bus }));
+      noiseOut({ dur:.7, gain:.06, type:"bandpass", freq:900, freqTo:400, q:1.4, atk:.15, delay:1.05, dest:bus });
+    },
+    // ✨ LA TELESITA: destello celeste, pura luz que titila
+    telesita(){
+      const ac = ctx(); if(!ac) return;
+      const bus = ac.createGain(); bus.connect(ac.destination);
+      echo(bus, { time:.36, feedback:.4, mix:.5 });
+      [1760, 2217, 2637, 3136, 3520].forEach((f, i) =>
+        toneOut({ type:"sine", freq:f, dur:.7, gain:.05, atk:.005, delay:i * .1, dest:bus }));
+      noiseOut({ dur:1.5, gain:.04, type:"highpass", freq:5200, q:.7, atk:.5, dest:bus });
+      toneOut({ type:"sine", freq:131, dur:1.6, gain:.06, atk:.1, dest:bus });
+    }
+  };
+
+  function playAmbient(legend){
+    const fn = AMBIENCE[legend.id];
+    if(typeof fn === "function"){ try{ fn(); }catch(e){ /* silencio */ } }
+  }
+
+  /* ============================================================
+     3c. SECUENCIA DEL ACIERTO: chispa → voz → sonido de la bestia
+     ============================================================ */
+  function speakThen(text, onDone){
+    const done = typeof onDone === "function" ? onDone : function(){};
+    if(!state.soundOn){ return; }
+    if(!("speechSynthesis" in window)){ setTimeout(done, 400); return; }
+
+    let fired = false;
+    const finish = () => { if(fired) return; fired = true; clearTimeout(guard); done(); };
+    const guard = setTimeout(finish, 4000);   // por si el navegador no dispara onend
+    try{
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "es-AR";
+      if(!esVoice) pickVoice();
+      if(esVoice) u.voice = esVoice;
+      u.rate = .92;
+      u.pitch = 1.08;
+      u.volume = 1;
+      u.onend = finish;
+      u.onerror = finish;
+      speechSynthesis.speak(u);
+    }catch(e){ finish(); }
+  }
+
+  function speak(text){ speakThen(text, null); }
+
+  // Al descubrir un par: ① brillo inmediato  ② la voz nombra a la leyenda
+  // ③ recién entonces entra el sonido ambiental característica de esa bestia
+  function playMatchSequence(legend){
+    if(!state.soundOn) return;
+    sfx.spark();
+    speakThen("¡" + legend.name + "!", function(){
+      if(!state.soundOn) return;
+      if(!document.querySelector("#gameScreen").classList.contains("active")) return;
+      playAmbient(legend);
+    });
+  }
 
   /* --- Síntesis de voz nativa (Web Speech API) --- */
   let esVoice = null;
@@ -730,20 +954,7 @@
     speechSynthesis.onvoiceschanged = pickVoice;
   }
 
-  function speak(text){
-    if(!state.soundOn || !("speechSynthesis" in window)) return;
-    try{
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "es-AR";
-      if(!esVoice) pickVoice();
-      if(esVoice) u.voice = esVoice;
-      u.rate = .92;
-      u.pitch = 1.08;
-      u.volume = 1;
-      speechSynthesis.speak(u);
-    }catch(e){ /* silencio */ }
-  }
+  /* (speak() vive arriba, en speakThen) */
 
   /* ============================================================
      4. UTILIDADES
@@ -886,9 +1097,9 @@
     [$("#soundToggle"), $("#soundToggle2")].forEach(btn => btn.addEventListener("click", () => {
       state.soundOn = !state.soundOn;
       if(!state.soundOn && "speechSynthesis" in window) speechSynthesis.cancel();
-      $("#soundToggle").textContent  = state.soundOn ? "🔊 Voz: activada" : "🔇 Voz: silenciada";
+      $("#soundToggle").textContent  = state.soundOn ? "🔊 Sonido: activado" : "🔇 Sonido: silenciado";
       $("#soundToggle").setAttribute("aria-pressed", String(state.soundOn));
-      $("#soundToggle2").textContent = state.soundOn ? "🔊 Voz" : "🔇 Voz";
+      $("#soundToggle2").textContent = state.soundOn ? "🔊 Sonido" : "🔇 Sonido";
       $("#soundToggle2").setAttribute("aria-pressed", String(state.soundOn));
       if(state.soundOn) sfx.click();
     }));
@@ -1037,9 +1248,8 @@
         state.flipped = [];
         state.lock = false;
 
-        // 🎙️ EFECTO ESPECIAL DE AUDIO + VOZ: se pronuncia el nombre de la leyenda
-        sfx.match();
-        speak("¡" + a.legend.name + "!");
+        // 🎙️ Secuencia multimedia: brillo → la voz nombra la leyenda → sonido ambiental
+        playMatchSequence(a.legend);
 
         setStatus(state.mode === "2p"
           ? "¡Pareja de " + a.legend.name + " para " + state.players[state.turn].name + "!"
