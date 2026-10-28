@@ -232,6 +232,13 @@
     border:1px solid rgba(255,255,255,.14);
   }
   .beast small{ display:block; color:var(--muted); font-family:var(--sans); font-size:.68rem; letter-spacing:.05em; }
+  /* Versión mini del arte dentro del bestiario del menú
+     (medidas fijas: evitan el circuito de porcentajes dentro del grid) */
+  .ico{ overflow:hidden; }
+  .ico .art{ width:32px; height:32px; font-size:1.15rem; animation:none; }
+  .ico .art .fallback{ filter:none; }
+  .ico .art svg{ width:1.5rem; height:1.5rem; }
+  .ico .art-img{ border-radius:6px; filter:none; }
 
   .rules{ margin-top:16px; font-size:.86rem; color:var(--muted); line-height:1.6; }
   .rules b{ color:var(--pumpkin); font-weight:600; }
@@ -353,12 +360,33 @@
     box-shadow:inset 0 0 30px rgba(0,0,0,.7);
     text-align:center;
   }
+  /* Caja fija: la imagen se adapta sin importar su proporción */
   .front .art{
-    font-size:clamp(1.7rem,7vw,2.6rem); line-height:1;
-    filter:drop-shadow(0 4px 10px rgba(0,0,0,.7));
+    width:100%; max-width:88px;
+    height:clamp(46px,15vw,72px);
+    display:flex; align-items:center; justify-content:center;
+    position:relative; line-height:1;
+    font-size:clamp(1.7rem,7vw,2.6rem);
     animation:bob 3.2s ease-in-out infinite;
   }
+  .front .art .fallback{
+    display:flex; align-items:center; justify-content:center;
+    filter:drop-shadow(0 4px 10px rgba(0,0,0,.7));
+  }
   .front .art svg{ width:2.4rem; height:2.4rem; }
+  /* Imagen de la leyenda: la caja es fija y object-fit:contain garantiza
+     proporción exacta sin importar el tamaño real del archivo */
+  .art-img{
+    display:block; width:100%; height:100%;
+    object-fit:contain; object-position:center;
+    border-radius:8px;
+    filter:drop-shadow(0 5px 10px rgba(0,0,0,.75));
+  }
+  .art-img[hidden]{ display:none; }
+  .has-img > .fallback{ display:none; }
+  /* más específico que `.front .art .fallback`, si no el emoji quedaba visible */
+  .front .art.has-img > .fallback,
+  .ico  .art.has-img > .fallback{ display:none; }
   @keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-5px);} }
   .front .name{
     font-family:var(--serif); font-size:clamp(.72rem,2.7vw,.92rem);
@@ -736,6 +764,84 @@
   const escapeHTML = s => String(s).replace(/[&<>"']/g, c =>
     ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 
+  /* ---------- Imágenes de leyendas -------------------------------------
+     Cada leyenda busca su archivo en la carpeta img/ probando, en orden:
+       1) el campo `img` del personaje (ruta exacta, opcional)
+       2) el id          → img/llorona.jpg
+       3) el nombre      → img/la llorona.jpg
+     con las extensiones jpg → jpeg → png → webp → svg.
+     El sondeo se hace con fetch(HEAD) para no ensuciar la consola con
+     404; si no hay red (archivo abierto con doble clic / file://) se
+     cae en la cadena clásica de <img>. Si no existe ninguna imagen,
+     queda el emoji / SVG de respaldo.
+     La CSS (object-fit:contain dentro de una caja de altura fija) hace
+     que imágenes de cualquier tamaño o proporción queden proporcionales
+     y nunca deformadas.                                              */
+  const IMG_EXTS = ["jpg", "jpeg", "png", "webp", "svg"];
+  const imgCache = new Map();
+
+  function imageURLs(legend){
+    if(imgCache.has(legend.id)) return imgCache.get(legend.id);
+
+    const bases = [];
+    const push = b => { if(b && bases.indexOf(b) === -1) bases.push(b); };
+    if(legend.img) push(String(legend.img).replace(/\.[^.\/]+$/, ""));
+    push(legend.id);
+    push(legend.name.toLowerCase());
+
+    const urls = [];
+    bases.forEach(b => IMG_EXTS.forEach(e => urls.push("img/" + b + "." + e)));
+
+    const probe = (async () => {
+      if(typeof fetch !== "function") return urls;
+      for(const u of urls){
+        try{
+          const r = await fetch(u, { method:"HEAD" });
+          if(r.ok || r.status === 405) return [u];   // 405: HEAD no permitido → probamos directo
+        }catch(e){ return urls; }                    // file:// u origen bloqueado → cadena clásica
+      }
+      return [];                                     // no existe ninguna imagen
+    })();
+
+    imgCache.set(legend.id, probe);
+    return probe;
+  }
+
+  function artBlock(legend, cls){
+    return '<span class="art' + (cls ? " " + cls : "") + '">' +
+             '<span class="fallback" aria-hidden="true">' + artHTML(legend) + '</span>' +
+             '<img class="art-img" data-id="' + legend.id + '" alt="' +
+               escapeHTML(legend.name) + '" decoding="async" hidden>' +
+           '</span>';
+  }
+
+  function attachImage(img, legend){
+    Promise.resolve(imageURLs(legend)).then(urls => {
+      if(!urls || !urls.length){ img.hidden = true; return; }  // sin imagen: queda el emoji
+      let i = 0;
+      const show = () => {
+        img.hidden = false;
+        if(img.parentElement) img.parentElement.classList.add("has-img");
+      };
+      const next = () => {
+        if(i >= urls.length){ img.hidden = true; return; }
+        img.src = urls[i++];
+      };
+      img.addEventListener("load", show, { once:true });
+      img.addEventListener("error", next, { once:true });
+      next();
+    });
+  }
+
+  function attachAllImages(root){
+    root.querySelectorAll(".art-img").forEach(img => {
+      if(img.dataset.ready) return;
+      img.dataset.ready = "1";
+      const legend = LEGENDS.find(l => l.id === img.dataset.id);
+      if(legend) attachImage(img, legend);
+    });
+  }
+
   function setStatus(msg, kind){
     const el = $("#status");
     el.textContent = msg;
@@ -748,9 +854,10 @@
   function buildBestiary(){
     $("#bestiary").innerHTML = LEGENDS.map(l =>
       '<div class="beast" style="border-color:' + l.accent + '44">' +
-        '<span class="ico" style="box-shadow:0 0 16px ' + l.glow + '">' + artHTML(l) + '</span>' +
+        '<span class="ico" style="box-shadow:0 0 16px ' + l.glow + '">' + artBlock(l, "mini") + '</span>' +
         '<span>' + l.name + '<small>' + l.tag + '</small></span>' +
       '</div>').join("");
+    attachAllImages($("#bestiary"));
   }
 
   function buildEmbers(){
@@ -839,7 +946,7 @@
             '<span class="eye">👁</span>' +
           '</span>' +
           '<span class="face front">' +
-            '<span class="art">' + artHTML(legend) + '</span>' +
+            artBlock(legend) +
             '<span class="name">' + legend.name + '</span>' +
             '<span class="tag">' + legend.tag + '</span>' +
           '</span>' +
@@ -848,6 +955,7 @@
       board.appendChild(btn);
       return { legend, el:btn };
     });
+    attachAllImages(board);
 
     $("#menuScreen").classList.remove("active");
     $("#gameScreen").classList.add("active");
