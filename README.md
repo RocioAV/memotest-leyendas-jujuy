@@ -1,72 +1,84 @@
-# 🎃 Memoria Ancestral · Leyendas de Jujuy
+# 🎃 Ancestral Memory · Legends of Jujuy Halloween Memotest
 
-Memotest (juego de memoria) con temática de **mitos y leyendas del noroeste argentino**, pensado para Halloween. Un único archivo HTML con todo el CSS y el JavaScript incluidos: sin dependencias, sin build, sin conexión necesaria.
+A **Halloween memory game (memotest)** themed around the **myths and legends of northwestern
+Argentina**, built as a single HTML file with all the CSS and JavaScript included: no
+dependencies, no build step, works offline.
 
-## 🕯️ Cómo jugar
+> 🌐 **Language**: the whole UI is in **English**, while the **bestiary is bilingual** — the
+> legends keep their original Spanish names with the English translation next to them
+> (e.g. *"La Llorona — The Weeping Woman"*). Cards and the speaking voice use the English names.
 
-1. Abrí `index.html` en cualquier navegador (doble clic basta).
-2. Elegí el modo:
-   - **Un Jugador**: contador de intentos y cronómetro.
-   - **Dos Jugadores (Local / Turnos)**: ingresás los nombres y cada pareja suma un punto al jugador en turno. Fallar pasa el turno al rival.
-3. Volteá dos cartas: si son la misma leyenda, el par queda revelado, suena un brillo místico y
-   **una voz en español pronuncia el nombre del personaje** (Web Speech Synthesis API) mientras,
-   **en simultáneo y con el volumen rebajado**, entra **el sonido ambiental de terror característico
-   de esa bestia** (Web Audio API). Al terminar de hablar, el sonido sube a su volumen normal y se
-   apaga solo a los **5 segundos** como máximo.
-4. Descubrí las 8 parejas del tablero 4 × 4 para completar el ritual.
+## 🕯️ How to play
 
-## 👻 Bestiario (las 8 cartas)
+1. Open `index.html` in any browser (a double click is enough).
+2. Choose a mode:
+   - **🌙 One Player**: solo mode with an attempts counter and a timer.
+   - **🔥 Two Players (Local / Turns)**: enter the names; each matched pair scores a point for
+     the player whose turn it is, and a miss passes the turn to the rival.
+3. Flip two cards: if they show the same legend, the pair stays revealed, a mystical spark plays
+   and **an ancestral voice speaks the name in English** (Web Speech Synthesis API) while,
+   **at the same time and with the volume ducked down**, **the characteristic horror ambience
+   of that beast** starts playing (Web Audio API). When the voice finishes, the sound rises back
+   to its normal volume and fades out by itself after a **maximum of 5 seconds**.
+4. Discover all 8 pairs on the 4 × 4 board to complete the ritual.
 
-| Leyenda | Dominio |
-| --- | --- |
-| La Llorona | Los ríos |
-| El Ucumar | El monte |
-| El Pombero | El monte |
-| El Duende | Las casas |
-| La Salamanca | La cueva |
-| El Familiar | La brujería |
-| El Ahogado | El río |
-| La Telesita | El cielo |
+## 👻 Bestiary (the 8 cards)
 
-## ✨ Detalles técnicos
+| Legend (Spanish) | Name in English | Domain |
+| --- | --- | --- |
+| La Llorona | The Weeping Woman | The rivers |
+| El Ucumar | The Ape-Man | The woods |
+| El Pombero | The Forest Guardian | The woods |
+| El Duende | The Goblin | The homes |
+| La Salamanca | The Devil's Cave | The cave |
+| El Familiar | The Witch's Familiar | Witchcraft |
+| El Ahogado | The Drowned Man | The river |
+| La Telesita | The Little Star | The sky |
 
-- **Modo oscuro** obligatorio: negros/grises profundos, naranja fuego (calabaza), morados místicos y bordes dorados rústicos.
-- Animación de volteo **3D flip** con `transform-style: preserve-3d` y `backface-visibility`.
-- **Secuencia multimedia al acertar un par**:
-  1. ✨ un brillo místico breve de feedback;
-  2. 🎙️ `speechSynthesis` **nombra a la leyenda** en español (`lang = "es-AR"`, voz española elegida
-     automáticamente) y, **en simultáneo**, entra el **sonido ambiental de terror** de esa bestia
-     con el volumen **rebajado (ducking)** hasta que la voz termina — así se escucha claro el nombre;
-  3. ⏱️ el ambiente **se apaga solo a los 5 segundos** como máximo (con un fade corto): sirve
-     igual con archivos propios larguísimos (probado con un MP3 de 40 s → se corta a los 5 s).
-- **Un rugido / lamento / crujido por criatura**, sintetizado en vivo con Web Audio API (osciladores, ruido filtrado, vibrato, eco y paneo):
+## ✨ Technical details
 
-  | Leyenda | Ambiente |
+- **Mandatory dark mode**: deep blacks/greys, fire orange (pumpkin), mystical purples and
+  rustic golden borders.
+- **3D flip** card animation with `transform-style: preserve-3d` and `backface-visibility`.
+- **Multimedia sequence on a matched pair**:
+  1. ✨ a brief mystical spark as feedback;
+  2. 🎙️ `speechSynthesis` **names the legend in English** (`lang = "en-US"`, an English voice is
+     picked automatically when available) and, **at the same time**, the **horror ambience of
+     that beast** comes in with the volume **ducked** until the voice ends — so the name is
+     clearly heard;
+  3. ⏱️ the ambience **fades out by itself after at most 5 seconds** (short fade): it works even
+     with very long files (tested with a 40 s MP3 → cut to 5 s).
+- **A roar / wail / creak per creature**, synthesized live with the Web Audio API (oscillators,
+  filtered noise, vibrato, echo and panning):
+
+  | Legend | Ambience |
   | --- | --- |
-  | La Llorona | lamento que sube y baja, con eco y aliento de agua helada |
-  | El Ucumar | rugido sordo y gutural con entrañas temblando |
-  | El Pombero | crujidos de ramas + su silbido de aviso |
-  | El Duende | risita traviesa con eco de escondite |
-  | La Salamanca | rumor de cueva + campana de bronce + susurro |
-  | El Familiar | siseo de serpiente y cascabel seco |
-  | El Ahogado | corriente fría, burbujas y respiración bajo el agua |
-  | La Telesita | destello celeste, luz que titila |
+  | La Llorona | rising and falling wail with echo and icy water breath |
+  | El Ucumar | dull gutural roar with trembling guts |
+  | El Pombero | branch creaks + his warning whistle |
+  | El Duende | mischievous giggle with hiding-hole echo |
+  | La Salamanca | cave rumour + bronze bell + whisper |
+  | El Familiar | snake hiss and dry rattle |
+  | El Ahogado | cold current, bubbles and underwater breathing |
+  | La Telesita | celestial flash, twinkling light |
 
-  El juego prefiere siempre el **archivo propio** (`sound/<leyenda>.mp3`, si existe) y usa el
-  sintetizado como respaldo: es **audio 100 % local (sin URLs externas)**, no depende de la red,
-  no hay problemas de licencia y sigue siendo un único HTML con sus carpetas `img/` y `sound/`.
-- Resto de los efectos: volteo, fallo, victoria y clic, también con Web Audio API.
-- Botón **🔊 Sonido** para silenciar voz + ambientes en cualquier momento.
-- Indicador visual de turno, marcador por jugador, cronómetro y estadísticas finales.
-- Accesibilidad: cartas como botones reales con `aria-label` dinámico, región `aria-live`, foco visible y soporte de `prefers-reduced-motion`.
+  The game always prefers the **own file** (`sound/<legend>.mp3`, if it exists) and uses the
+  synthesized one as a fallback: it's **100 % local audio (no external URLs)**, it doesn't need
+  the network, there are no licence issues, and it remains a single HTML file with its `img/`
+  and `sound/` folders.
+- Other effects (flip, miss, victory, click) also with the Web Audio API.
+- **🔊 Sound** button to mute voice + ambience at any moment.
+- Visual turn indicator, per-player scoreboard, timer and final statistics.
+- Accessibility: cards are real buttons with dynamic `aria-label`, an `aria-live` region,
+  visible focus and `prefers-reduced-motion` support.
 
-## 🖼️ Imágenes de las leyendas (opcional)
+## 🖼️ Legend images (optional)
 
-Cada leyenda tiene su propia ilustración en la carpeta **`img/`**. Podés reemplazarlas por las tuyas:
+Every legend has its own illustration in the **`img/`** folder. You can replace them with yours:
 
-| Leyenda | Nombre de archivo |
+| Legend | File name |
 | --- | --- |
-| La Llorona | `img/llorona.jpg` (o `.png` / `.webp` / `.svg`) |
+| La Llorona | `img/llorona.jpg` (or `.png` / `.webp` / `.svg`) |
 | El Ucumar | `img/ucumar.jpg` |
 | El Pombero | `img/pombero.jpg` |
 | El Duende | `img/duende.jpg` |
@@ -75,21 +87,25 @@ Cada leyenda tiene su propia ilustración en la carpeta **`img/`**. Podés reemp
 | El Ahogado | `img/ahogado.jpg` |
 | La Telesita | `img/telesita.jpg` |
 
-- **Cualquier tamaño y proporción sirve**: cuadradas, apaisadas o verticales. El CSS usa una caja de altura fija con `object-fit: contain`, así la imagen siempre queda **proporcional, centrada y sin deformarse** (cuadradas o rectangulares van perfecto).
-- Extensiones buscadas automáticamente, en orden: `.jpg` → `.jpeg` → `.png` → `.webp` → `.svg`.
-- También se aceptan otros nombres: `img/la llorona.jpg`, `img/el duende.png`, etc. (probado como segunda opción).
-- Podés forzar una ruta exacta agregando el campo `img:"ruta/archivo.jpg"` al personaje dentro del array `LEGENDS`.
-- Si **no existe** la imagen, se muestra un respaldo (SVG con la runa y el nombre, o el emoji) para que ninguna carta quede vacía.
-- Las imágenes con **fondo blanco o transparente** se ven mejor sobre la carta oscura.
+- **Any size and aspect ratio works**: square, landscape or portrait. The CSS uses a fixed-height
+  box with `object-fit: contain`, so the image always stays **proportional, centred and undistorted**.
+- Extensions probed automatically, in order: `.jpg` → `.jpeg` → `.png` → `.webp` → `.svg`.
+- Other names are also accepted: `img/la llorona.jpg`, `img/el duende.png`, etc. (tried as a
+  second option — this is why the Spanish `name` field must not be changed).
+- You can force an exact path by adding the field `img:"path/file.jpg"` to the character inside
+  the `LEGENDS` array.
+- If the image **doesn't exist**, a fallback is shown (SVG with the rune and the name, or the
+  emoji) so no card is ever blank.
+- Images with a **white or transparent background** look best on the dark card.
 
-## 🔊 Sonidos propios de las bestias (opcional)
+## 🔊 Own beast sounds (optional)
 
-Además de los ambientes sintetizados, cada leyenda puede tener **su propio archivo de sonido**
-en la carpeta **`sound/`**. Si existe, se reproduce **ese** archivo (después de que la voz nombra
-a la leyenda); si no, se usa el ambiente sintetizado de la tabla anterior. Mismo esquema que las
-imágenes: sondeo automático y respaldo sin tocar el código.
+Besides the synthesized ambience, each legend can have **its own sound file** in the **`sound/`**
+folder. If it exists, **that** file is played (simultaneously with the voice naming the legend);
+if not, the synthesized ambience from the table above is used. Same scheme as the images:
+automatic probing and fallback without touching the code.
 
-| Leyenda | Nombre de archivo |
+| Legend | File name |
 | --- | --- |
 | La Llorona | `sound/llorona.mp3` ✔ |
 | El Ucumar | `sound/ucumar.mp3` ✔ |
@@ -97,25 +113,26 @@ imágenes: sondeo automático y respaldo sin tocar el código.
 | El Duende | `sound/duende.mp3` ✔ |
 | La Salamanca | `sound/salamanca.mp3` ✔ |
 | El Familiar | `sound/familiar.mp3` ✔ |
-| El Ahogado | `sound/ahogado.wav` ✔ *(corriente fría, burbujas y respiración bajo el agua)* |
-| La Telesita | `sound/telesita.wav` ✔ *(destello celeste: campanillas, titileos y luz de fondo)* |
+| El Ahogado | `sound/ahogado.wav` ✔ *(cold current, bubbles and underwater breathing)* |
+| La Telesita | `sound/telesita.wav` ✔ *(celestial flash: chimes, twinkles and background light)* |
 
-✔ = archivo incluido en el repositorio. Los dos últimos (Ahogado y Telesita) fueron **generados a
-medida** con sintesis de audio (PCM WAV, ~170-190 KB c/u): cámbialos por los tuyos cuando quieras,
-con el mismo nombre, y los toma el juego sin editar nada.
+✔ = file included in the repository. The last two (Ahogado and Telesita) were **generated to
+order** with audio synthesis (PCM WAV, ~170-190 KB each): swap them for your own whenever you
+want, with the same name, and the game picks them up without editing anything.
 
-- Extensiones buscadas, en orden: `.mp3` → `.ogg` → `.m4a` → `.wav`.
-- También se aceptan otros nombres: `sound/la llorona.mp3`, `sound/el duende.mp3`, etc.
-- Podés forzar una ruta exacta con el campo `sound:"ruta/archivo.mp3"` en el array `LEGENDS`.
-- **Duración**: lo ideal son 2 a 4 segundos. Aunque el archivo dure más (o mucho más), el juego
-  lo **desvanece y corta solo a los 5 segundos** — ningún archivo puede frenar el ritmo del juego.
-- El sonido entra **en simultáneo con la voz**, con el volumen rebajado hasta que la voz termina.
-- El botón 🔊 Sonido corta el archivo al instante, igual que la voz.
+- Extensions searched, in order: `.mp3` → `.ogg` → `.m4a` → `.wav`.
+- Other names are also accepted: `sound/la llorona.mp3`, `sound/el duende.mp3`, etc.
+- You can force an exact path with the field `sound:"path/file.mp3"` in the `LEGENDS` array.
+- **Duration**: 2 to 4 seconds is ideal. Even if the file is longer (or much longer), the game
+  **fades it out and cuts it off by itself at 5 seconds** — no file can slow the game down.
+- The sound starts **simultaneously with the voice**, with the volume ducked until the voice ends.
+- The 🔊 Sound button cuts the file instantly, just like the voice.
 
-## 🚀 Publicar en GitHub Pages
+## 🚀 Publish on GitHub Pages
 
-Subí el repo y activá **Settings → Pages → Deploy from a branch → `main` / root**. La juego queda disponible en `https://<usuario>.github.io/<repo>/`.
+Push the repo and enable **Settings → Pages → Deploy from a branch → `main` / root**. The game
+will be available at `https://<user>.github.io/<repo>/`.
 
-## 📄 Licencia
+## 📄 Licence
 
-Usá y modificá libremente para proyectos personales, educativos o de Halloween. 🎃
+Use and modify freely for personal, educational or Halloween projects. 🎃

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Memoria Ancestral · Leyendas de Jujuy</title>
+<title>Ancestral Memory · Legends of Jujuy</title>
 <style>
   /* ============================================================
      MEMORIA ANCESTRAL · Memotest de Leyendas de Jujuy
@@ -267,7 +267,7 @@
     transform:translateY(-2px);
   }
   .player.active::after{
-    content:"▲ tu turno"; position:absolute; top:-9px; left:14px; font-size:.58rem; letter-spacing:.18em;
+    content:"▲ your turn"; position:absolute; top:-9px; left:14px; font-size:.58rem; letter-spacing:.18em;
     background:var(--ember); color:#1b0d02; padding:2px 8px; border-radius:999px; font-weight:700;
     text-transform:uppercase;
   }
@@ -485,24 +485,24 @@
   <!-- ============ MENÚ PRINCIPAL ============ -->
   <section id="menuScreen" class="screen active">
     <header class="brand">
-      <div class="kicker">Halloween en la Quebrada de Humahuaca</div>
-      <h1 class="title">Memoria Ancestral</h1>
-      <div class="subtitle">Leyendas del Monte · Memotest Folclórico de Jujuy</div>
+      <div class="kicker">Halloween in the Quebrada de Humahuaca</div>
+      <h1 class="title">Ancestral Memory</h1>
+      <div class="subtitle">Legends of the Wilds · A Folklore Memory Game from Jujuy</div>
       <div class="runes-line" aria-hidden="true"><span>ᛟ</span><span>ᚠ</span><span>ᛉ</span><span>ᛊ</span><span>ᚨ</span></div>
     </header>
 
     <div class="menu-grid">
       <!-- Configuración -->
       <div class="panel">
-        <h2>Elige tu camino</h2>
+        <h2>Choose your path</h2>
 
         <div class="mode">
           <label class="mode-option">
             <input type="radio" name="mode" value="1p" checked>
             <span class="dot"></span>
             <span>
-              <span class="m-title">🌙 Un Jugador</span>
-              <span class="m-desc">Modo solitario: cuenta tus intentos y domina el cronómetro mientras despiertas a las 8 leyendas.</span>
+              <span class="m-title">🌙 One Player</span>
+              <span class="m-desc">Solo mode: count your attempts and beat the clock while you awaken the 8 legends.</span>
             </span>
           </label>
 
@@ -510,74 +510,74 @@
             <input type="radio" name="mode" value="2p">
             <span class="dot"></span>
             <span>
-              <span class="m-title">🔥 Dos Jugadores (Local / Turnos)</span>
-              <span class="m-desc">Se turnan sus revelaciones: cada pareja acertada suma un punto y fallar pasa el turno al rival.</span>
+              <span class="m-title">🔥 Two Players (Local / Turns)</span>
+              <span class="m-desc">Take turns revealing: each pair scored earns a point, and a miss passes the turn to your rival.</span>
             </span>
           </label>
         </div>
 
         <div class="names" id="namesBox">
           <div class="field p1">
-            <label for="p1Name">Jugador 1 · Naranja</label>
-            <input id="p1Name" type="text" maxlength="16" value="Guardián" autocomplete="off">
+            <label for="p1Name">Player 1 · Orange</label>
+            <input id="p1Name" type="text" maxlength="16" value="Guardian" autocomplete="off">
           </div>
           <div class="field p2">
-            <label for="p2Name">Jugador 2 · Violeta</label>
-            <input id="p2Name" type="text" maxlength="16" value="Chamanita" autocomplete="off">
+            <label for="p2Name">Player 2 · Purple</label>
+            <input id="p2Name" type="text" maxlength="16" value="Little Shaman" autocomplete="off">
           </div>
         </div>
 
         <div class="actions">
-          <button class="btn" id="startBtn">🕯️ Iniciar la partida</button>
-          <button class="btn ghost" id="soundToggle" aria-pressed="true">🔊 Sonido: activado</button>
+          <button class="btn" id="startBtn">🕯️ Start the game</button>
+          <button class="btn ghost" id="soundToggle" aria-pressed="true">🔊 Sound: on</button>
         </div>
 
         <p class="rules">
-          <b>Cómo se juega:</b> volteá dos cartas; si muestran la misma leyenda, el par queda revelado,
-          <b>una voz ancestral pronuncia su nombre</b> mientras <b>suena el rugido / lamento /
-          crujido</b> característico de esa bestia (máx. 5 segundos).
-          Tablero de <b>4 × 4</b> = 8 parejas.
-          En modo de dos jugadores, fallar pasa el turno al rival.
+          <b>How to play:</b> flip two cards; if they show the same legend, the pair stays revealed,
+          <b>an ancestral voice speaks its name</b> while <b>the roar / wail / creak</b>
+          characteristic of that beast plays at the same time (max 5 seconds).
+          Board of <b>4 × 4</b> = 8 pairs.
+          In two-player mode, a miss passes the turn to your rival.
         </p>
       </div>
 
-      <!-- Bestiario -->
+      <!-- Bestiary -->
       <div class="panel">
-        <h2>Bestiario</h2>
+        <h2>Bestiary</h2>
         <div class="bestiary" id="bestiary"></div>
         <p class="rules">
-          Ocho criaturas de la tierra jujeña aguardan tras las cartas. Descubrí todas antes de que
-          el incienso se consuma… <b>¡No dejes que la llorona te atrape!</b>
+          Eight creatures of the Jujuy land wait behind the cards. Discover them all before the
+          incense burns out… <b>Don't let the Weeping Woman catch you!</b>
         </p>
       </div>
     </div>
 
-    <div class="footnote">Mitos y leyendas del noroeste argentino · Hecho con fuego, runas y HTML</div>
+    <div class="footnote">Myths and legends of northwestern Argentina · Made with fire, runes and HTML</div>
   </section>
 
   <!-- ============ PANTALLA DE JUEGO ============ -->
   <section id="gameScreen" class="screen">
     <div class="topbar">
-      <button class="btn ghost" id="backBtn" style="padding:9px 18px; font-size:.78rem;">← Menú</button>
-      <div class="mini-title">Memoria Ancestral · Tablero 4 × 4</div>
-      <button class="btn ghost" id="soundToggle2" style="padding:9px 18px; font-size:.78rem;" aria-pressed="true">🔊 Sonido</button>
+      <button class="btn ghost" id="backBtn" style="padding:9px 18px; font-size:.78rem;">← Menu</button>
+      <div class="mini-title">Ancestral Memory · 4 × 4 Board</div>
+      <button class="btn ghost" id="soundToggle2" style="padding:9px 18px; font-size:.78rem;" aria-pressed="true">🔊 Sound</button>
     </div>
 
     <div class="hud">
       <div class="players" id="playersPanel"></div>
       <div class="stats">
-        <div class="stat"><div class="v" id="statPairs">0/8</div><div class="k">Parejas</div></div>
-        <div class="stat"><div class="v" id="statAttempts">0</div><div class="k">Intentos</div></div>
-        <div class="stat"><div class="v" id="statTime">00:00</div><div class="k">Tiempo</div></div>
+        <div class="stat"><div class="v" id="statPairs">0/8</div><div class="k">Pairs</div></div>
+        <div class="stat"><div class="v" id="statAttempts">0</div><div class="k">Attempts</div></div>
+        <div class="stat"><div class="v" id="statTime">00:00</div><div class="k">Time</div></div>
       </div>
     </div>
 
     <div class="board-wrap">
-      <div class="board" id="board" aria-label="Tablero de memoria con 16 cartas"></div>
+      <div class="board" id="board" aria-label="Memory board with 16 cards"></div>
     </div>
 
-    <div class="status" id="status" role="status" aria-live="polite">Elegí dos cartas para despertar una leyenda…</div>
-    <div class="footnote">Haz clic en dos cartas · al acertar: voz + sonido ambiental de la bestia</div>
+    <div class="status" id="status" role="status" aria-live="polite">Pick two cards to awaken a legend…</div>
+    <div class="footnote">Click two cards · on a match: voice + the beast's ambient sound</div>
   </section>
 </div>
 
@@ -585,13 +585,13 @@
 <div class="overlay" id="overlay">
   <div class="victory">
     <div class="trophy">🎃</div>
-    <h2 id="winTitle">¡Ritual completado!</h2>
+    <h2 id="winTitle">Ritual Complete!</h2>
     <div class="who" id="winWho"></div>
     <p class="msg" id="winMsg"></p>
     <div class="final-stats" id="finalStats"></div>
     <div class="actions">
-      <button class="btn" id="againBtn">🔁 Jugar de nuevo</button>
-      <button class="btn violet" id="menuBtn">🌙 Volver al menú</button>
+      <button class="btn" id="againBtn">🔁 Play again</button>
+      <button class="btn violet" id="menuBtn">🌙 Back to menu</button>
     </div>
   </div>
 </div>
@@ -612,22 +612,22 @@
     '</svg>';
 
   const LEGENDS = [
-    { id:"llorona",  name:"La Llorona",  art:"ghost",   tag:"Los ríos",    accent:"#4cc9f0", glow:"rgba(76,201,240,.40)",
-      desc:"Vaga por las quebradas llorando por sus hijos perdidos.", rune:"ᚠ" },
-    { id:"ucumar",   name:"El Ucumar",   art:"🙉",      tag:"El monte",    accent:"#c98a4b", glow:"rgba(201,138,75,.40)",
-      desc:"Hombre-mono de la selva que ronda las fincas de Yavi.",   rune:"ᚢ" },
-    { id:"pombero",  name:"El Pombero",  art:"🐦",      tag:"El monte",    accent:"#43aa5a", glow:"rgba(67,170,90,.40)",
-      desc:"Guardián silbador de los animales: si lo escuchás, no los caces.", rune:"ᚦ" },
-    { id:"duende",   name:"El Duende",   art:"🧚",      tag:"Las casas",   accent:"#b15ce0", glow:"rgba(177,92,224,.40)",
-      desc:"Pequeño y travieso, encanta a los niños y esconde tus cosas.", rune:"ᚨ" },
-    { id:"salamanca",name:"La Salamanca", art:"🏚️",     tag:"La cueva",    accent:"#ff9f1c", glow:"rgba(255,159,28,.42)",
-      desc:"Cueva donde, en noche de fiesta, el Diablo enseña a los brujos.", rune:"ᚱ" },
-    { id:"familiar", name:"El Familiar", art:"🐍",      tag:"La brujería", accent:"#e63946", glow:"rgba(230,57,70,.40)",
-      desc:"Serpiente que el brujo cría con la leche de sus propias cabras.", rune:"ᚲ" },
-    { id:"ahogado",  name:"El Ahogado",  art:"🌊",      tag:"El río",      accent:"#2a7fd4", glow:"rgba(42,127,212,.42)",
-      desc:"Alma en pena que busca una mano para llevársela al fondo.", rune:"ᚷ" },
-    { id:"telesita", name:"La Telesita", art:"✨",      tag:"El cielo",    accent:"#ffd166", glow:"rgba(255,209,102,.45)",
-      desc:"Niña hechicera que baja del cielo a bailar en las tardes.", rune:"ᛉ" }
+    { id:"llorona",  name:"La Llorona",  nameEn:"The Weeping Woman",   art:"ghost",   tag:"The rivers", accent:"#4cc9f0", glow:"rgba(76,201,240,.40)",
+      desc:"She wanders the ravines weeping for her lost children.", rune:"ᚠ" },
+    { id:"ucumar",   name:"El Ucumar",   nameEn:"The Ape-Man",         art:"🙉",      tag:"The woods",  accent:"#c98a4b", glow:"rgba(201,138,75,.40)",
+      desc:"The ape-man of the forest who haunts the farms of Yavi.",   rune:"ᚢ" },
+    { id:"pombero",  name:"El Pombero",  nameEn:"The Forest Guardian", art:"🐦",      tag:"The woods",  accent:"#43aa5a", glow:"rgba(67,170,90,.40)",
+      desc:"The whistling guardian of animals: if you hear him, do not hunt.", rune:"ᚦ" },
+    { id:"duende",   name:"El Duende",   nameEn:"The Goblin",          art:"🧚",      tag:"The homes",  accent:"#b15ce0", glow:"rgba(177,92,224,.40)",
+      desc:"Small and mischievous, he charms children and hides your things.", rune:"ᚨ" },
+    { id:"salamanca",name:"La Salamanca",nameEn:"The Devil's Cave",    art:"🏚️",     tag:"The cave",   accent:"#ff9f1c", glow:"rgba(255,159,28,.42)",
+      desc:"The cave where, on feast nights, the Devil teaches the witches.", rune:"ᚱ" },
+    { id:"familiar", name:"El Familiar", nameEn:"The Witch's Familiar",art:"🐍",      tag:"Witchcraft", accent:"#e63946", glow:"rgba(230,57,70,.40)",
+      desc:"The serpent a witch raises with the milk of their own goats.", rune:"ᚲ" },
+    { id:"ahogado",  name:"El Ahogado",  nameEn:"The Drowned Man",     art:"🌊",      tag:"The river",  accent:"#2a7fd4", glow:"rgba(42,127,212,.42)",
+      desc:"A restless soul searching for a hand to take down below.", rune:"ᚷ" },
+    { id:"telesita", name:"La Telesita", nameEn:"The Little Star",     art:"✨",      tag:"The sky",    accent:"#ffd166", glow:"rgba(255,209,102,.45)",
+      desc:"A sorceress girl who descends from the sky to dance at dusk.", rune:"ᛉ" }
   ];
 
   const TOTAL_PAIRS = LEGENDS.length;
@@ -637,7 +637,7 @@
      ============================================================ */
   const state = {
     mode:"1p",
-    players:[{ name:"Jugador 1", score:0 }, { name:"Jugador 2", score:0 }],
+    players:[{ name:"Player 1", score:0 }, { name:"Player 2", score:0 }],
     turn:0,
     deck:[],          // [{ legend, el }]
     flipped:[],       // índices boca arriba esperando comparación
@@ -650,7 +650,7 @@
   };
 
   /* ============================================================
-     3. AUDIO · Web Audio (efectos) + Web Speech (voz en español)
+     3. AUDIO · Web Audio (efectos) + Web Speech (voz en inglés)
      ============================================================ */
   let audioCtx = null;
   function ctx(){
@@ -1041,9 +1041,9 @@
     try{
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = "es-AR";
-      if(!esVoice) pickVoice();
-      if(esVoice) u.voice = esVoice;
+      u.lang = "en-US";
+      if(!enVoice) pickVoice();
+      if(enVoice) u.voice = enVoice;
       u.rate = .92;
       u.pitch = 1.08;
       u.volume = 1;
@@ -1064,23 +1064,22 @@
     sfx.spark();
     duckAmbience(true);           // ambiente rebajado mientras habla la voz
     playAmbient(legend);          // entra en paralelo con la voz
-    speakThen("¡" + legend.name + "!", function(){
+    speakThen(legend.nameEn + "!", function(){
       duckAmbience(false);        // voz terminada: el ambiente vuelve a su volumen
     });
   }
 
-  /* --- Síntesis de voz nativa (Web Speech API) --- */
-  let esVoice = null;
+  /* --- Síntesis de voz nativa (Web Speech API) · inglés --- */
+  let enVoice = null;
   function pickVoice(){
     if(!("speechSynthesis" in window)) return null;
     const voices = speechSynthesis.getVoices();
     if(!voices.length) return null;
-    esVoice =
-      voices.find(v => /^es[-_]?(AR|419)/i.test(v.lang)) ||
-      voices.find(v => /^es[-_]?(MX|US|ES)/i.test(v.lang)) ||
-      voices.find(v => /^es/i.test(v.lang)) ||
+    enVoice =
+      voices.find(v => /^en[-_](US|GB)/i.test(v.lang)) ||
+      voices.find(v => /^en/i.test(v.lang)) ||
       null;
-    return esVoice;
+    return enVoice;
   }
   if("speechSynthesis" in window){
     pickVoice();
@@ -1155,7 +1154,7 @@
     return '<span class="art' + (cls ? " " + cls : "") + '">' +
              '<span class="fallback" aria-hidden="true">' + artHTML(legend) + '</span>' +
              '<img class="art-img" data-id="' + legend.id + '" alt="' +
-               escapeHTML(legend.name) + '" decoding="async" hidden>' +
+               escapeHTML(legend.name + " / " + legend.nameEn) + '" decoding="async" hidden>' +
            '</span>';
   }
 
@@ -1196,10 +1195,11 @@
      5. MENÚ
      ============================================================ */
   function buildBestiary(){
+    // Bilingüe: nombre en español + traducción y tipo en inglés
     $("#bestiary").innerHTML = LEGENDS.map(l =>
       '<div class="beast" style="border-color:' + l.accent + '44">' +
         '<span class="ico" style="box-shadow:0 0 16px ' + l.glow + '">' + artBlock(l, "mini") + '</span>' +
-        '<span>' + l.name + '<small>' + l.tag + '</small></span>' +
+        '<span>' + l.name + '<small>' + l.nameEn + ' · ' + l.tag + '</small></span>' +
       '</div>').join("");
     attachAllImages($("#bestiary"));
   }
@@ -1233,9 +1233,9 @@
         if("speechSynthesis" in window) speechSynthesis.cancel();
         stopAmbience();               // silencia también el archivo de sonido
       }
-      $("#soundToggle").textContent  = state.soundOn ? "🔊 Sonido: activado" : "🔇 Sonido: silenciado";
+      $("#soundToggle").textContent  = state.soundOn ? "🔊 Sound: on" : "🔇 Sound: off";
       $("#soundToggle").setAttribute("aria-pressed", String(state.soundOn));
-      $("#soundToggle2").textContent = state.soundOn ? "🔊 Sonido" : "🔇 Sonido";
+      $("#soundToggle2").textContent = state.soundOn ? "🔊 Sound" : "🔇 Sound";
       $("#soundToggle2").setAttribute("aria-pressed", String(state.soundOn));
       if(state.soundOn) sfx.click();
     }));
@@ -1247,8 +1247,8 @@
   }
 
   function readNames(){
-    state.players[0].name = ($("#p1Name").value || "").trim() || "Jugador 1";
-    state.players[1].name = ($("#p2Name").value || "").trim() || "Jugador 2";
+    state.players[0].name = ($("#p1Name").value || "").trim() || "Player 1";
+    state.players[1].name = ($("#p2Name").value || "").trim() || "Player 2";
   }
 
   function goMenu(){
@@ -1283,7 +1283,7 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "card";
-      btn.setAttribute("aria-label", "Carta oculta");
+      btn.setAttribute("aria-label", "Face-down card");
       btn.style.setProperty("--accent", legend.accent);
       btn.style.setProperty("--glow", legend.glow);
       btn.innerHTML =
@@ -1296,7 +1296,7 @@
           '</span>' +
           '<span class="face front">' +
             artBlock(legend) +
-            '<span class="name">' + legend.name + '</span>' +
+            '<span class="name">' + legend.nameEn + '</span>' +
             '<span class="tag">' + legend.tag + '</span>' +
           '</span>' +
         '</span>';
@@ -1312,8 +1312,8 @@
 
     renderHUD();
     setStatus(state.mode === "2p"
-      ? "Comienza " + state.players[0].name + " · elegí dos cartas…"
-      : "Elegí dos cartas para despertar una leyenda…");
+      ? state.players[0].name + " goes first · pick two cards…"
+      : "Pick two cards to awaken a legend…");
 
     state.timerId = setInterval(() => {
       state.seconds++;
@@ -1329,7 +1329,7 @@
       panel.innerHTML = state.players.map((p,i) =>
         '<div class="player ' + (i===0 ? "p1" : "p2") + (i===state.turn ? " active" : "") + '">' +
           '<div>' +
-            '<div class="plabel">' + (i===0 ? "Jugador 1" : "Jugador 2") + '</div>' +
+            '<div class="plabel">' + (i===0 ? "Player 1" : "Player 2") + '</div>' +
             '<div class="pname">' + escapeHTML(p.name) + '</div>' +
           '</div>' +
           '<div class="pscore" style="margin-left:auto">' + p.score + '</div>' +
@@ -1337,8 +1337,8 @@
     }else{
       panel.innerHTML =
         '<div class="player active">' +
-          '<div><div class="plabel">Modo solitario</div>' +
-          '<div class="pname">Guardián de leyendas</div></div>' +
+          '<div><div class="plabel">Solo mode</div>' +
+          '<div class="pname">Legend Guardian</div></div>' +
           '<div class="pscore" style="margin-left:auto">' + state.players[0].score + '</div>' +
         '</div>';
     }
@@ -1358,7 +1358,7 @@
 
     sfx.flip();
     card.el.classList.add("flipped");
-    card.el.setAttribute("aria-label", card.legend.name + ", carta revelada");
+    card.el.setAttribute("aria-label", card.legend.nameEn + ", revealed card");
     state.flipped.push(i);
 
     if(state.flipped.length === 2){
@@ -1378,8 +1378,8 @@
       setTimeout(() => {
         a.el.classList.add("matched");
         b.el.classList.add("matched");
-        a.el.setAttribute("aria-label", a.legend.name + ", pareja descubierta");
-        b.el.setAttribute("aria-label", b.legend.name + ", pareja descubierta");
+        a.el.setAttribute("aria-label", a.legend.nameEn + ", matched pair");
+        b.el.setAttribute("aria-label", b.legend.nameEn + ", matched pair");
 
         state.matchedPairs++;
         state.players[state.mode === "2p" ? state.turn : 0].score++;
@@ -1390,8 +1390,8 @@
         playMatchSequence(a.legend);
 
         setStatus(state.mode === "2p"
-          ? "¡Pareja de " + a.legend.name + " para " + state.players[state.turn].name + "!"
-          : "¡Pareja de " + a.legend.name + "!", "good");
+          ? "Pair of " + a.legend.nameEn + " for " + state.players[state.turn].name + "!"
+          : "Pair of " + a.legend.nameEn + "!", "good");
 
         renderHUD();
 
@@ -1402,23 +1402,23 @@
       }, 380);
     }else{
       sfx.fail();
-      setStatus("No coinciden… las sombras se cierran.", "bad");
+      setStatus("No match… the shadows close in.", "bad");
 
       setTimeout(() => { a.el.classList.add("shake"); b.el.classList.add("shake"); }, 340);
 
       setTimeout(() => {
         [a, b].forEach(c => {
           c.el.classList.remove("flipped", "shake");
-          c.el.setAttribute("aria-label", "Carta oculta");
+          c.el.setAttribute("aria-label", "Face-down card");
         });
         state.flipped = [];
         state.lock = false;
 
         if(state.mode === "2p"){
           state.turn = state.turn === 0 ? 1 : 0;
-          setStatus("Le toca a " + state.players[state.turn].name + " · suerte esta vez…", "turn");
+          setStatus(state.players[state.turn].name + "'s turn · better luck this time…", "turn");
         }else{
-          setStatus("Otra vez… memorizá las posiciones.");
+          setStatus("Try again… memorize the positions.");
         }
         renderHUD();
       }, 1000);
@@ -1441,40 +1441,40 @@
     if(state.mode === "2p"){
       const p1 = state.players[0], p2 = state.players[1];
       if(p1.score > p2.score){
-        title.textContent = "¡Victoria!";
-        who.innerHTML = '🌙 Gana <b>' + escapeHTML(p1.name) + '</b>';
-        msg.textContent = "Las leyendas inclinan la balanza hacia " + p1.name +
-          ", que reunió " + p1.score + " almas contra " + p2.score + " de " + p2.name + ".";
-        speak("¡Felicidades " + p1.name + "! ¡Has ganado el memotest de las leyendas!");
+        title.textContent = "Victory!";
+        who.innerHTML = '🌙 <b>' + escapeHTML(p1.name) + '</b> wins';
+        msg.textContent = "The legends tip the scales toward " + p1.name +
+          ", who gathered " + p1.score + " souls to " + p2.score + " for " + p2.name + ".";
+        speak("Congratulations " + p1.name + "! You won the legends memory game!");
       }else if(p2.score > p1.score){
-        title.textContent = "¡Victoria!";
-        who.innerHTML = '🔮 Gana <b>' + escapeHTML(p2.name) + '</b>';
-        msg.textContent = p2.name + " reunió " + p2.score + " almas contra " + p1.score +
-          " de " + p1.name + ". La noche es suya.";
-        speak("¡Felicidades " + p2.name + "! ¡Has ganado el memotest de las leyendas!");
+        title.textContent = "Victory!";
+        who.innerHTML = '🔮 <b>' + escapeHTML(p2.name) + '</b> wins';
+        msg.textContent = p2.name + " gathered " + p2.score + " souls to " + p1.score +
+          " for " + p1.name + ". The night is theirs.";
+        speak("Congratulations " + p2.name + "! You won the legends memory game!");
       }else{
-        title.textContent = "¡Empate ancestral!";
-        who.innerHTML = '⚖️ <b>' + escapeHTML(p1.name) + '</b> y <b>' + escapeHTML(p2.name) + '</b>';
-        msg.textContent = "Ambos reunieron " + p1.score + " almas. Las leyendas no saben decidir… ¿otra ronda?";
-        speak("¡Empate! Ambos reunieron la misma cantidad de almas.");
+        title.textContent = "Ancestral Tie!";
+        who.innerHTML = '⚖️ <b>' + escapeHTML(p1.name) + '</b> and <b>' + escapeHTML(p2.name) + '</b>';
+        msg.textContent = "Both gathered " + p1.score + " souls. The legends can't decide… one more round?";
+        speak("It's a tie! Both gathered the same number of souls.");
       }
       stats.innerHTML =
         fs(p1.score, p1.name) + fs(p2.score, p2.name) +
-        fs(fmtTime(state.seconds), "Duración") + fs(state.attempts, "Intentos");
+        fs(fmtTime(state.seconds), "Duration") + fs(state.attempts, "Attempts");
     }else{
       const perfect = state.attempts === TOTAL_PAIRS;
-      title.textContent = "¡Ritual completado!";
-      who.innerHTML = '🏆 <b>' + state.players[0].score + " / " + TOTAL_PAIRS + '</b> parejas';
+      title.textContent = "Ritual Complete!";
+      who.innerHTML = '🏆 <b>' + state.players[0].score + " / " + TOTAL_PAIRS + '</b> pairs';
       msg.textContent = perfect
-        ? "¡Memoria perfecta! No fallaste ni una sola vez. El monte te proclama maestro de leyendas."
-        : "Despertaste a las 8 leyendas de Jujuy en " + fmtTime(state.seconds) + ". El incienso sigue ardiendo…";
+        ? "Perfect memory! Not a single miss. The wilds proclaim you a master of legends."
+        : "You awakened the 8 legends of Jujuy in " + fmtTime(state.seconds) + ". The incense still burns…";
       speak(perfect
-        ? "¡Memoria perfecta! ¡No fallaste ni una vez!"
-        : "¡Felicidades! ¡Has completado todas las parejas!");
+        ? "Perfect memory! You never missed!"
+        : "Congratulations! You matched every pair!");
       stats.innerHTML =
-        fs(state.attempts, "Intentos") +
-        fs(fmtTime(state.seconds), "Tiempo") +
-        fs(TOTAL_PAIRS, "Parejas");
+        fs(state.attempts, "Attempts") +
+        fs(fmtTime(state.seconds), "Time") +
+        fs(TOTAL_PAIRS, "Pairs");
     }
 
     $("#overlay").classList.add("show");
